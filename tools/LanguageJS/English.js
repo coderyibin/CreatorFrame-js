@@ -1,0 +1,1 @@
+'use strict';if (!window.i18n) {window.i18n = {};}if (!window.i18n.languages) {window.i18n.languages = {};}window.i18n.languages['English'] = {"CHINESE":"Chinese","ENGLISH":"English","MUSIC":"Music","GOTOSUCCESS":"passengers have been served","WEEK":"Week","DAY":"day","TOPRECORD":"Highest record:","SOUND":"Sound","CHINESECHARA":"ChineseChara"};

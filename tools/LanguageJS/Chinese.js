@@ -1,0 +1,1 @@
+'use strict';if (!window.i18n) {window.i18n = {};}if (!window.i18n.languages) {window.i18n.languages = {};}window.i18n.languages['Chinese'] = {"CHINESE":"中文","ENGLISH":"英文","MUSIC":"音乐","GOTOSUCCESS":"成功送达乘客","WEEK":"周","DAY":"天","TOPRECORD":"最高分：","SOUND":"声音","CHINESECHARA":"中文繁体"};

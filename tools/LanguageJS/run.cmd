@@ -1,0 +1,2 @@
+node jcLanguage.js
+pause
