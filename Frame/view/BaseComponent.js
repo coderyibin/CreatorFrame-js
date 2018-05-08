@@ -94,23 +94,15 @@ var BaseComponent = cc.Class({
     _getAllNode (node) {
         this._analysisClass.startAnalysis(node)
     },
-    //注册文本
-    _getLabelObject (node) {
-        let name = node.name
-        let c = node.name.indexOf('_label_')
-        if (c >= 0) {
-            let name = Global.GetStrLen(node.name, 7)
-            this._labelData[name] = node.getComponent(cc.Label)
-        }
+    //获取文本组件值
+    getLabelString (name) {
+        return this._analysisClass.getLabelString(name)
     },
-    /**
-     * 注册按钮触发事件
-     */
-    _registerButton (node) {
-        let name = '_tap_' + node.name
-        node.addComponent('ButtonClick').CreateEvent(name, this)
-        this._buttonData[name] = node
+    //设置文本值
+    setLabelString (name, value) {
+        this._analysisClass.setLabelString(name, value)
     },
+
     getCanvas () {
         return this._canvas
     },
