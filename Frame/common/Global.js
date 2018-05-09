@@ -84,5 +84,19 @@ var Global = {
     GetStrLen (str, start, len) {
         return str.substr(start, len)
     },
+    /**
+     * 获取资源文件名称
+     * @param 文件路径
+     */
+    GetFileName (path) {
+        while (true) {
+            let index = path.indexOf("/"); 
+            if (index != -1) {
+                path = path.substr(index + 1, path.length);
+            } else {
+                return path;
+            }
+        }
+    }
 }
 module.exports = Global

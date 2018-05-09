@@ -7,13 +7,6 @@ var BaseComponent = cc.Class({
     extends : cc.Component,
 
     properties : {
-        LabelArray : {
-            tooltip : "文本数组",
-            default : [],
-            type : cc.Node
-        },
-
-        _labelData : null,
         _canvas : null,
         _event : null,
         _analysisClass : null,
@@ -46,13 +39,8 @@ var BaseComponent = cc.Class({
      */
     __initValue () {
         this._analysisClass = new Analysis()
-        this._labelData = {}
-        this._buttonData = {}
         this._canvas = cc.find("Canvas")
         this._event = CusEvent.getInstance()
-        this._analysis = {
-            '_label_' : this._labelData,
-        }
     },
 
     /**
@@ -61,32 +49,13 @@ var BaseComponent = cc.Class({
     __initUI () {
         this._getAllNode(this._canvas)
     },
+    _isNative () {
+        return cc.sys.isNative;
+    },
 
-    /**
-     * 遍历所有节点并且获取文本组件
-     */
-    _getAllNodeRegisterLabel (node) {
-        for (let i in node.children) {
-            let _node = node.children[i]
-            let c = _node.name.indexOf('_label_')
-            if (c >= 0) {
-                let name = Global.GetStrLen(_node.name, 7)
-                this._labelData[name] = _node.getComponent(cc.Label)
-            }
-            this._getAllNodeRegisterLabel(_node)
-        }
-    },
-    /**
-     * 获取文本对象
-     */
-    getLabel (name) {
-        return this._labelData[name]
-    },
-    /**
-     * 获取按钮对象
-     */
-    getButton (name) {
-        return this._buttonData[name]
+    //获取节点
+    getNode (name) {
+        return this._analysisClass.getNode(name)
     },
     /**
      * 场景节点解析
@@ -95,12 +64,12 @@ var BaseComponent = cc.Class({
         this._analysisClass.startAnalysis(node)
     },
     //获取文本组件值
-    getLabelString (name) {
+    getLabelValue (name) {
         return this._analysisClass.getLabelString(name)
     },
     //设置文本值
-    setLabelString (name, value) {
-        this._analysisClass.setLabelString(name, value)
+    setLabelValue (name, value, ...values) {
+        this._analysisClass.setLabelString(name, value, values)
     },
 
     getCanvas () {

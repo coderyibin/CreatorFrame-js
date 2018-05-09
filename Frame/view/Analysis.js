@@ -20,26 +20,15 @@ var Analysis = cc.Class({
     startAnalysis (node, comp) {
         for (let i in node.children) {
             let _node = node.children[i]
-            this._getLabelObject(_node)
             this._registerButton(_node, comp)
             this.startAnalysis(_node)
             this._allNode[_node.name] = _node
         }
     },
 
-    _getLabelObject (node) {
-        let name = node.name
-        let c = node.name.indexOf('_label_')
-        if (c >= 0) {
-            let name = Global.GetStrLen(node.name, 7)
-            // this._labelData[name] = node.getComponent(cc.Label)
-        }
-    },
-
     _registerButton (node, comp) {
         let name = '_tap_' + node.name
         node.addComponent('ButtonClick').CreateEvent(name, comp)
-        // this._buttonData[name] = node
     },
 
     getNode(name) {
@@ -58,13 +47,23 @@ var Analysis = cc.Class({
         }
     },
 
-    setLabelString (name, value) {
+    setLabelString (name, value, ...values) {
         let node = this.getNode(name)
         if (node) {
             if (Common.OpenLanguage) {
-                node.getComponent('LocalizedLabel').dataID = value
+                if (node.getComponent('LocalizedLabel')) {
+                    node.getComponent('LocalizedLabel').dataID = value
+                } else {
+                    node.addComponent('LocalizedLabel').dataID = value
+                }
             } else {
                 node.getComponent(cc.Label).string = value
+            }
+            if (values.length > 0) {
+                let str = this.getLabelString(name)
+                for (let i in values) {
+                    node.getComponent(cc.Label).string = str.replace(/%s/, values[i])
+                }
             }
         }
     },
