@@ -13,8 +13,30 @@ var Common = {
     DefaultLanguage : 'Chinese',
     //场景名称
     SceneName : {
-        SceneGame : 'Scene_Game'
-    }
+        SceneLogin : 'Scene_Login',
+        SceneGame : 'Scene_Game',
+
+        LayerMsg : 'Layer_Msg',
+        LayerNet : 'Layer_NetLoading',
+        LayerHouse : 'Layer_House',
+        LayerPetList : 'Layer_PetList',
+    },
+    //路由
+    Routes : {
+        PomeloInit : 'gate.gateHandler.entry',
+        Login : 'connector.entryHandler.login',
+        Register : 'connector.entryHandler.register',
+        SynchroUser: 'connector.entryHandler.synchroInfo',
+    },
+    //http请求
+    Http : {
+        GetPetList : 'users/getUserPetList',//获取玩家所有的宠物list
+    },
+    //服务端推送key
+    PushKey : {
+        FirstPet : 'FirstPet',
+        UserInfo : 'UserInfo',
+    },
 }
 
 module.exports = Common

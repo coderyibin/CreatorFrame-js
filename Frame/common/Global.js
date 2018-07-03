@@ -34,6 +34,32 @@ var Global = {
     GetTime () {
         return (new Date()).valueOf() + '';
     },
+    //时间转换-时间戳转时间
+    GetTime (time) {
+        time = time + ''
+        if (time.length < 12) time = parseInt(time) * 1000
+        time = parseInt(time)
+        var date = new Date(time)
+        console.log(date)
+        var y = date.getFullYear();    
+        var m = date.getMonth() + 1;    
+        m = m < 10 ? ('0' + m) : m;    
+        var d = date.getDate();    
+        d = d < 10 ? ('0' + d) : d;    
+        var h = date.getHours();  
+        h = h < 10 ? ('0' + h) : h;  
+        var minute = date.getMinutes();  
+        var second = date.getSeconds();  
+        minute = minute < 10 ? ('0' + minute) : minute;    
+        second = second < 10 ? ('0' + second) : second;   
+        return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second; 
+    },
+    //获取数据组第一条数据
+    GetJsonFirst (json) {
+        for (let i in json) {
+            return json[i]
+        }
+    },
     //获取json数据的长度
     GetJsonLength (json) {
         if (! json || ! (json instanceof Object)) return;
@@ -47,9 +73,27 @@ var Global = {
     CloneJSON (jsonData) {
         return JSON.parse(JSON.stringify(jsonData));
     },
+    CloneJson (jsonData) {
+        return CloneJSON(jsonData)
+    },
     //克隆数组
     CloneArray (arr) {
         return arr.slice(0);
+    },
+    //json转字符串
+    JSONToStr (json) {
+        return JSON.stringify(json)
+    },
+    //字符串转json
+    StrToJSON (str) {
+        return JSON.parse(str)
+    },
+    //字符串替换
+    StrReplace (str, ...values) {
+        for (let i in values) {
+            str = str.replace('%s', value[i])
+        }
+        return str
     },
     /**
      * 判断字符串是否包含某些字符

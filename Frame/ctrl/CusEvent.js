@@ -20,6 +20,7 @@ var CusEvent = cc.Class({
     },
 
     on (name, cb, self) {
+        // Com.info('join event->', name)
         if (! this._event[name]) this._event[name] = {};
         if (! this._event[name]["cb"]) {
             this._event[name]["cb"] = [];
@@ -37,7 +38,7 @@ var CusEvent = cc.Class({
                 if (this._event[name]["cb"][i]) {
                     let tar = this._event[name]["target"];
                     this._event[name]["cb"][i](data);
-                    console.log('push ->', name);
+                    Com.info('push ->', name);
                 }
             }
         } else {
@@ -50,7 +51,7 @@ var CusEvent = cc.Class({
             console.log("remove->", name);
             delete this._event[name];
         } else {
-            console.warn("不存在该key订阅->", name);            
+            // console.warn("不存在该key订阅->", name);            
         }
     },
 });

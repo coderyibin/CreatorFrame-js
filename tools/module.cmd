@@ -1,0 +1,3 @@
+cd ./Module
+
+./file.cmd

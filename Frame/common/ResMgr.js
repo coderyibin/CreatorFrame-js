@@ -11,6 +11,14 @@ var Res = cc.Class({
         this._global = {}
     },
 
+    getGlobal () {
+        return this._global
+    },
+
+    getConfig () {
+        return this.getGlobal().Config
+    }, 
+
     /**
      * 加载全局资源组
      * @param 资源数组名称
@@ -76,17 +84,26 @@ var Res = cc.Class({
             cb(res, target);
         });
     },
+
+    loadRes (fileName, cb) {
+        this._loadRes(fileName, cb)
+    },
+
     /**
      * 获取资源
      * @param file 资源名称 
      */
     GetRes (file) {
         let g_Arr = this._global
-        for (let i in g_Arr) {//优先遍历全局资源
-            if (file == i) {
-                let res = g_Arr[i];
-                return res instanceof cc.Prefab ? cc.instantiate(res) : res;
-            }
+        // for (let i in g_Arr) {//优先遍历全局资源
+        //     if (file == i) {
+        //         let res = g_Arr[i];
+        //         return res instanceof cc.Prefab ? cc.instantiate(res) : res;
+        //     }
+        // }
+        if (g_Arr[file]) {
+            let res = g_Arr[file]
+            return res instanceof cc.Prefab ? cc.instantiate(res) : res;
         }
         let sName = cc.director.getScene().name;
         let arr = RES.Res[sName];
@@ -98,6 +115,9 @@ var Res = cc.Class({
         }
         cc.warn("未找到该资源", file);
         return null;
+    },
+    Get (file) {
+        return this.GetRes(file)
     },
     /**
      * 释放资源
@@ -120,6 +140,16 @@ var Res = cc.Class({
         } else {
             
         }
+    },
+
+    GetNetRes (url, cb) {
+        cc.loader.load({url : url, type : 'png'}, function (err, texture) {
+            if (err) {
+                return
+            }
+            var spriteFrame = new cc.SpriteFrame(texture, cc.Rect(0, 0, texture.width, texture.height));
+            cb(spriteFrame)
+        });
     },
 })
 

@@ -30,6 +30,13 @@ OpenLanguage//是否开启开启多语言
 <br>
 全局的函数
 <br>
+4.日志打印<br>
+Com.info(打印的信息)<br>
+Com.warn(打印的信息)<br>
+Com.error(打印的信息)<br>
+<br>
+5.添加通知弹窗
+this.onMsg({content : '', title : '', select = true || false})
 注意的：
 <br>
     绑定的脚本名称需要和要绑定的节点（场景）名称一致

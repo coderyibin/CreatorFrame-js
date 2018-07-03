@@ -38,27 +38,29 @@ var BaseLoading = cc.Class({
     },
 
     _loadResCfgJson (cb) {
+        let self = this
         RES.loadJson("resources", (res)=>{
-            let r = res.common;
-            r = r.concat(res.config);
-            r = r.concat(res.mp3);
-            if (r.length == 0) this._comeInGame(cb);
-            RES.loadArray(r, (index, len, res)=>{
-                if (this['progress']) {
-                    this.progress(index, len, res);
+            let r = []
+            for (let i in res) {
+                r = r.concat(res[i] || [])
+            }
+            if (r.length == 0) {this._comeInGame(cb);return}
+            RES.loadArray(r, function (index, len, res) {
+                if (self['progress']) {
+                    self.progress(index, len, res);
                 } else {
-                    console.warn('该子类未实现progress函数');
+                    Com.warn('该子类未实现progress函数');
                 }
-            }, ()=>{
-                // this._runScene(SCENE_NAME.LOGIN_SCENE);
-                this._comeInGame(cb);
+            }, function () {
+                self._comeInGame(cb);
             });
         });
     },
 
     _comeInGame (cb) {
-        this.Progress_Sleep.progress = 1;
-        if (this['load_cb']) this['load_cb']()
+        this.setProgressValue('progress', 1)
+        this.setLabelValue('jindu', 'JINDUWANCHENG')
+        this._runScene(Common.SceneName.SceneLogin)
     },
 
     //h5 直接加载资源
@@ -68,12 +70,4 @@ var BaseLoading = cc.Class({
     //检查更新
     _fCheckUpdate () {
     }
-
-    // OnInitValue () {
-
-    // },
-
-    // OnInitUi () {
-
-    // },
 })
