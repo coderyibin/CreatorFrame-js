@@ -10,17 +10,15 @@ var BaseLoading = cc.Class({
             tooltip : "本地的热更新配置文件",
             url : cc.RawAsset
         },
-        Progress_Sleep : {
-            default : null,
-            tooltip : "加载文件进度条",
-            type : cc.ProgressBar
-        },
+        _gameScene : ''
     },
 
     onLoad () {
         this._super()
         //设置是否显示帧率
         cc.director.setDisplayStats(Common.IsShowFPS);
+        this._gameScene = Common.SceneName.SceneLogin
+        this.OnInit()
         if (! this._isNative()) {//直接进行网页h5
 
             this._fLoadRes();  
@@ -28,6 +26,10 @@ var BaseLoading = cc.Class({
         } else {//检查更新
             if (Common.IsHotUpdate) this._fCheckUpdate();
         }
+    },
+
+    OnInit () {
+
     },
 
     //显示更新弹窗
@@ -60,7 +62,7 @@ var BaseLoading = cc.Class({
     _comeInGame (cb) {
         this.setProgressValue('progress', 1)
         this.setLabelValue('jindu', 'JINDUWANCHENG')
-        this._runScene(Common.SceneName.SceneLogin)
+        this._runScene(this._gameScene)
     },
 
     //h5 直接加载资源

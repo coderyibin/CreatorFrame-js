@@ -2,9 +2,9 @@
 var xlsx = require('node-xlsx');
 var fs = require('fs');
 var path = require('path')
-
+var files = require('./config')
 //解析Excel
-function praseExcel(list)
+function praseExcel(list, name)
 {
     for (var i = 0; i < list.length; i++) 
     {
@@ -16,10 +16,39 @@ function praseExcel(list)
         for (var j = 3; j < excleData.length ; j++)
         {
             var curData = excleData[j];
-            json[curData[0]] = curData[2]
+            // json[curData[0]] = curData
+            console.log(curData)
+            var _data = {}
+            for (var k in curData) {
+                var type = typeArray[k]
+                if (type == 'int32') {
+                    _data[keyArray[k]] = curData[k]
+                } else if (type == 'string') {
+                    _data[keyArray[k]] = curData[k] + ''
+                } else if (type == 'bool') {
+                    _data[keyArray[k]] = curData[k]
+                } else if (type == 'string') {
+                    _data[keyArray[k]] = curData[k] + ''
+                } else if (type == 'float') {
+                    _data[keyArray[k]] = curData[k]
+                } else {
+                    throw new Error('表格有误->', name, ':', j);
+                }
+                if (curData[k] == '-') {
+                    if (type == 'string') {
+                        _data[keyArray[k]] = ''
+                    } else {
+                        _data[keyArray[k]] = 0                        
+                    }
+                }
+                json[curData[0]] = _data
+            }
         }
     }
     var data = JSON.stringify(json)
+    // console.log(typeArray)
+    // console.log(keyArray)
+    // console.log(data)
     return data
 }
 
@@ -40,8 +69,10 @@ function readFile (name) {
     // console.log(excelObj);
     //一个sheet文档中的内容包含sheet表头 一个excelObj表示一个二维数组，excelObj[i]表示sheet文档中第i+1行的数据集（一行的数据也是数组形式，访问从索引0开始）
 
-    var json = praseExcel(obj);
+    var json = praseExcel(obj, name);
     writeFile(name, json)
 
 }
-readFile("Config")
+for (var i in files) {
+    readFile(files[i])
+}

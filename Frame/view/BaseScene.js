@@ -1,5 +1,4 @@
 var BaseComponent = require("BaseComponent")
-var GameCtrl = require('GameCtrl')
 var Common = require('Common')
 
 var BaseaScene = cc.Class({
@@ -10,7 +9,6 @@ var BaseaScene = cc.Class({
         _touchEnable : null,
         _startPos : null,
         _arrEmit : null,
-        _gameCtrl : null,
         _netloading : null,
         _gameNode : null,
     },
@@ -19,7 +17,6 @@ var BaseaScene = cc.Class({
         this._super()
         this._physics = false
         this._touchEnable = false
-        this._gameCtrl = GameCtrl.getInstance()
         this._arrEmit = ['onMsg', 'runScene', 'onNetLoading', 'onRemoveNetLoading']
         this._gameNode = this.getCanvas()
         this.OnInit()
@@ -107,7 +104,7 @@ var BaseaScene = cc.Class({
     showLayer (layerName) {
         let node = RES.Get(layerName)
         this._gameNode.addChild(node)
-    },
+    },ShowLayer(layerName){this.showLayer(layerName)},
 
     runScene (data) {
         this._runScene(data.Scene || data.scene)

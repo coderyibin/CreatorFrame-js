@@ -15,6 +15,10 @@ var Analysis = cc.Class({
         i18n.init(Common.DefaultLanguage);
     },
 
+    Clear () {
+        this._allNode = {}
+    },
+
     startAnalysis (node, comp) {
         for (let i in node.children) {
             let _node = node.children[i]

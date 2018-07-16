@@ -25,6 +25,7 @@ function StrReplace (str, ...values) {
 rl.question('Please input js name: (eg:scene: input : Scene_Name or layer: input : Layer_Name)', (answer) => {
     fileName = answer
     if (fileName.indexOf('Layer') >= 0) writeFile(fileName, StrReplace(modules.layer, fileName))
+    else if (fileName.indexOf('Loading') >= 0) writeFile(fileName, modules.loading)
     else if (fileName.indexOf('Scene') >= 0) writeFile(fileName, modules.scene)
     else if (fileName.indexOf('Unit') >= 0) writeFile(fileName, modules.unit)
     else console.log('input error, so create file faild!')

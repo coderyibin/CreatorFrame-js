@@ -15,7 +15,9 @@ var Common = {
     SceneName : {
         SceneLogin : 'Scene_Login',
         SceneGame : 'Scene_Game',
+        SceneMenu : 'Scene_Menu',
 
+        LayerMenu : 'Layer_Menu',
         LayerMsg : 'Layer_Msg',
         LayerNet : 'Layer_NetLoading',
         LayerHouse : 'Layer_House',

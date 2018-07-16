@@ -10,8 +10,8 @@ var Global = require('Global')
     },
 
     ctor () {
-        this._http = new XMLHttpRequest();
-        this._http.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        this._http = cc.loader.getXMLHttpRequest();
+        // this._http.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
     },
 
     _getUrl () {
@@ -24,6 +24,7 @@ var Global = require('Global')
         url = this._getUrl() + url + this._paramToStr(param)
         Com.info('http->', url)
         this._http.open("GET", url, true)
+        this._http.setRequestHeader("Content-Type","text/plain;charset=UTF-8");
         this._CallBack = cb;
         this._http.onreadystatechange = this._result.bind(this)
         this._http.send()
@@ -38,12 +39,13 @@ var Global = require('Global')
     },
 
     Post (url, param, cb) {
-        Com.warn('数据解析有问题，暂停使用')
-        // this._http.open("POST", url)
-        // this._CallBack = cb;
-        // this._http.onreadystatechange = this._result()
-        // this._http.send(param)
-        // Com.info('http->', url, param)
+        this._http.open("POST", url, true)
+        this._http.setRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+        this._CallBack = cb;
+        this._http.onreadystatechange = this._result()
+        param = JSON.stringify(param)
+        this._http.send(param)
+        Com.info('http->', url, param)
     },
 
     _result () {

@@ -55,8 +55,28 @@ var unit = "var BaseUnit = require(\"BaseUnit\")\r" +
 "\r" +
 "})\r";
 
+var loading = '' +
+'var BaseLoading = require(\'BaseLoading\')\n\n' +
+'var Common = require(\'Common\')\n\n' +
+'cc.Class({\n\n' +
+'    extends : BaseLoading,\n\n' +
+'    onLoad () {\n' +
+'        this._super()\n' +
+'    },\n\n' +
+'    OnInit () {\n' +
+'        //不重设这句话的话，默认跳转的场景是Scene_Login\n' +
+'        //this._gameScene = Common.SceneName.SceneGame\n' +
+'    },\n\n' +
+'    progress (index, len, res) {\n' + 
+'        let s = index / len \n' +
+'        s *= 100\n' +
+'        this.setProgressValue(\'progress\', s) \n' +
+'    },\n\n' +
+'})\n' 
+
 module.exports = {
     scene : scene,
     layer : layer,
     unit : unit,
+    loading : loading,
 }
