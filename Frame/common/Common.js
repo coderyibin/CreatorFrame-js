@@ -4,7 +4,9 @@ var Common = {
      */
     IsDebug : true,
     //是否显示fps
-    IsShowFPS : false,
+    IsShowFPS : true,
+    //是否显示碰撞区域
+    IsShowCollision : true,
     //是否开启多语言
     OpenLanguage : true,
     //是否热更新
@@ -18,10 +20,26 @@ var Common = {
         SceneMenu : 'Scene_Menu',
 
         LayerMenu : 'Layer_Menu',
+        LayerPause : 'Layer_Pause',
+        LayerMap : 'Layer_Map',
+        LayerGame : 'Layer_Game',
+        LayerOver : 'Layer_Over',
         LayerMsg : 'Layer_Msg',
         LayerNet : 'Layer_NetLoading',
         LayerHouse : 'Layer_House',
         LayerPetList : 'Layer_PetList',
+        LayerMap1 : 'Layer_Map(1)',
+        LayerMap2 : 'Layer_Map(2)',
+        LayerMap3 : 'Layer_Map(3)',
+        LayerMap4 : 'Layer_Map(4)',
+        LayerMap5 : 'Layer_Map(5)',
+        LayerMap6 : 'Layer_Map(6)',
+        LayerMap7 : 'Layer_Map(7)',
+        LayerMap8 : 'Layer_Map(8)',
+        LayerMap9 : 'Layer_Map(9)',
+        LayerMap10 : 'Layer_Map(10)',
+
+        UnitHero : "Unit_Hero",
     },
     //路由
     Routes : {

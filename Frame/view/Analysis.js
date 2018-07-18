@@ -6,12 +6,23 @@ var Global = require('Global')
 var Analysis = cc.Class({
     extends : cc.class,
 
+    // statics : {
+    //     _fctor : null,
+    //     getInstance : function () {
+    //         if (! this._fctor) {
+    //             this._fctor = new Analysis()
+    //         } return this._fctor
+    //     }
+    // },
+
     properties : {
         _allNode : null,
+        _butonCb : null,
     },
 
     ctor () {
         this._allNode = {}
+        this._butonCb = []
         i18n.init(Common.DefaultLanguage);
     },
 
@@ -29,10 +40,16 @@ var Analysis = cc.Class({
         }
     },
 
+    //获取所有节点
+    GetAllNode () {
+        return this._allNode
+    },
+
     _registerButton (node, comp) {
         let name = '_tap_' + node.name
         if (comp[name]) {
             node.addComponent('ButtonClick').CreateEvent(name, comp)
+            this._butonCb.push(name)
         }
     },
 

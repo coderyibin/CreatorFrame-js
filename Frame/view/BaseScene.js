@@ -1,5 +1,6 @@
 var BaseComponent = require("BaseComponent")
 var Common = require('Common')
+var Sys = require('Sys')
 
 var BaseaScene = cc.Class({
     extends : BaseComponent,
@@ -11,13 +12,17 @@ var BaseaScene = cc.Class({
         _arrEmit : null,
         _netloading : null,
         _gameNode : null,
+        _collision : null,
     },
 
     onLoad () {
         this._super()
+        this._collision = cc.director.getCollisionManager();
+        this._collision.enabledDebugDraw = Common.IsShowCollision;
         this._physics = false
         this._touchEnable = false
-        this._arrEmit = ['onMsg', 'runScene', 'onNetLoading', 'onRemoveNetLoading']
+        this._collision.enabled = false//未开启碰撞
+        this._arrEmit = ['onMsg', 'runScene', 'onNetLoading', 'onRemoveNetLoading', 'onClearLayer']
         this._gameNode = this.getCanvas()
         this.OnInit()
 
@@ -42,6 +47,11 @@ var BaseaScene = cc.Class({
                 Com.warn("未注册事件", sName);
             }
         }
+    },
+
+    onClearLayer (layerName) {
+        if (this._hasLayer[layerName])
+            delete this._hasLayer[layerName]
     },
 
     onMsg (data) {
@@ -75,20 +85,21 @@ var BaseaScene = cc.Class({
 
     _openTouch () {
         if (! this._touchEnable) return 
+        Com.info('开启触摸事件')
         let start = null
-        this.node.on(cc.Node.EventType.TOUCH_START, function (e) {
+        this.node.on(Sys.Touch_Begin, function (e) {
             let pos = e.touch.getLocation()
             this._startPos = start = pos
             if (this["OnTouchBegin"]) this["OnTouchBegin"](pos)
         }, this)
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, function (e) {
+        this.node.on(Sys.Touch_Cancel, function (e) {
             if (this["OnTouchCancel"]) this["OnTouchCancel"](e.touch.getLocation())
         }, this)
-        this.node.on(cc.Node.EventType.TOUCH_END, function (e) {
+        this.node.on(Sys.Touch_End, function (e) {
             let pos = e.touch.getLocation()
             if (this["OnTouchEnd"]) this["OnTouchEnd"](start, pos)
         }, this)
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, function (e) {
+        this.node.on(Sys.Touch_Move, function (e) {
             let pos = e.touch.getLocation()
             if (this["OnTouchMove"]) this["OnTouchMove"](start, pos)
         }, this)
@@ -101,10 +112,19 @@ var BaseaScene = cc.Class({
         this.node.off(cc.Node.EventType.TOUCH_MOVE, function (e) {}, this)
     },
 
-    showLayer (layerName) {
-        let node = RES.Get(layerName)
-        this._gameNode.addChild(node)
-    },ShowLayer(layerName){this.showLayer(layerName)},
+    // /**
+    //  * 显示一个layer
+    //  * @param {*} layerName layer名称
+    //  * @param {*} parent layer要加入的父节点，为空则加入canvas中
+    //  */
+    // showLayer (layerName, parent) {
+    //     let node = RES.Get(layerName)
+    //     if (! parent) {
+    //         this._gameNode.addChild(node)
+    //     } else {
+    //         parent.addChild(node)            
+    //     }
+    // },ShowLayer(layerName, parent){this.showLayer(layerName, parent)},
 
     runScene (data) {
         this._runScene(data.Scene || data.scene)

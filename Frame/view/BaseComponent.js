@@ -7,10 +7,13 @@ var BaseComponent = cc.Class({
     extends : cc.Component,
 
     properties : {
+        _script : null,
         _canvas : null,
         _emitter : null,
         _analysisClass : null,
         _analysis : null,
+        _allNode : null,
+        _hasLayer : null,
         //滚动容器
         _list_ :null,
         _unit_ : null,
@@ -31,12 +34,12 @@ var BaseComponent = cc.Class({
     OnInitValueBefore () {
     },
 
-    /**
-     * 添加解析ui的key
-     */
-    JoinAnalysis (...values) {
-        this._analysisClass.initAnalysis(values, this)
-    },
+    // /**
+    //  * 添加解析ui的key
+    //  */
+    // JoinAnalysis (...values) {
+    //     this._analysisClass.initAnalysis(values, this)
+    // },
 
     /**
      * 初始化变量
@@ -45,6 +48,8 @@ var BaseComponent = cc.Class({
         this._analysisClass = new Analysis()
         this._canvas = cc.find("Canvas")
         this._emitter = CusEvent.getInstance()
+        this._allNode = {}
+        this._hasLayer = {}
     },
 
     /**
@@ -56,6 +61,32 @@ var BaseComponent = cc.Class({
     _isNative () {
         return cc.sys.isNative;
     },
+
+    /**
+     * 显示一个layer
+     * @param {*} layerName layer名称
+     * @param {*} parent layer加入的父节点
+     */
+    showLayer (layerName, parent, only) {
+        if (only) {
+            if (this._hasLayer[layerName]) {
+                return this._hasLayer[layerName]
+            }
+        }
+        let node = RES.Get(layerName)
+        if (parent) parent.addChild(node) 
+        else this._gameNode.addChild(node)
+        if (only) this._hasLayer[layerName] = node
+        return node
+    },ShowLayer (layerName, parent, only=false) {return this.showLayer(layerName, parent, only)},
+
+    /**
+     * 创建一个unit单元元件
+     */
+    showUnit (unitName, parent, index, data) {
+        let node = this.ShowLayer(unitName, parent)
+        node.getComponent(node.name).Set(index, data)
+    }, ShowUnit (unitName, parent, index, data) {return this.showUnit(unitName, parent, index, data)},
 
     //刷新列表*列表名称
     refreshList (listName) {
@@ -99,6 +130,13 @@ var BaseComponent = cc.Class({
             node.active = false
         }
     },
+    //节点是否隐藏
+    IsShowNode (name) {
+        let node = this.getNode(name)
+        if (node) {
+            return node.active
+        }
+    },
     //获取资源节点
     GetResNode (name) {
         return RES.Get(name)
@@ -108,6 +146,8 @@ var BaseComponent = cc.Class({
      */
     _getAllNode (node) {
         this._analysisClass.startAnalysis(node, this)
+        this._allNode = this._analysisClass.GetAllNode()
+        UI.JoinMgr(this._script, this._allNode)
     },
     //清空容器内容
     ClearList (name) {
@@ -122,7 +162,7 @@ var BaseComponent = cc.Class({
     //设置文本值
     setLabelValue (name, value, ...values) {
         this._analysisClass.setLabelValue(name, value, ...values)
-    },
+    },SetLabelValue (name, value, ...values) {this.setLabelValue(name, value, ...values)},
     //设置数字文本值
     setNumberLabelValue (name, value) {
         this._analysisClass.setNumberLabelValue(name, value)
@@ -151,4 +191,14 @@ var BaseComponent = cc.Class({
     getCanvas () {
         return this._canvas
     },GetCanvas () {return this.getCanvas()},
+
+    //获取可视视图大小
+    GetVisibleSize () {
+        return cc.director.getVisibleSize()
+    },
+
+    onDestroy () {
+        UI.Clear()
+        this._hasLayer = {}
+    }
 });

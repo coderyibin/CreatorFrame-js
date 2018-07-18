@@ -18,6 +18,7 @@ cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_END, function () {
             self.node.scaleX = 1            
             self.node.scaleY = 1
+            CusAudio.PlayButton()
             if (self._touch == false) return
             self._touch = false
             let that = self

@@ -7,7 +7,6 @@ var BaseMsg = cc.Class({
     properties : {
         _cancelCb : null,
         _okCb : null,
-        _data : null
     },
 
     onLoad () {

@@ -1,4 +1,5 @@
 var BaseComponent = require("BaseComponent")
+var CusEvent = require('CusEvent')
 
 var BaseLayer = cc.Class({
     extends : BaseComponent,
@@ -7,6 +8,8 @@ var BaseLayer = cc.Class({
         _arrEmit : null,
         _isShield : null,
         _gameNode : null,
+        _event : null,
+        _data : null,
     },
 
     onLoad () {
@@ -23,6 +26,7 @@ var BaseLayer = cc.Class({
         this._isShield = true
         this._arrEmit = []
         this._gameNode = this.getCanvas()
+        this._event = CusEvent.getInstance()
     },
 
     registerEvent (layerName) {
@@ -63,12 +67,16 @@ var BaseLayer = cc.Class({
         node.zIndex = -1;
     },
 
-    showLayer (layerName) {
-        let node = RES.Get(layerName)
-        this._gameNode.addChild(node)
+    Emit (emitName, emitData) {
+        this._event.emit(emitName, emitData)
+    },
+
+    Set (data) {
+        this._data = data
     },
 
     remove () {
+        this.Emit('onClearLayer', this._script)
         this.node.removeFromParent()
-    },
+    }, Remove () {this.remove()}
 })

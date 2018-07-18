@@ -31,7 +31,7 @@ var Global = {
     /**
      * 获取当前时间戳
      */
-    GetTime () {
+    GetTimeString () {
         return (new Date()).valueOf() + '';
     },
     //时间转换-时间戳转时间
@@ -40,7 +40,6 @@ var Global = {
         if (time.length < 12) time = parseInt(time) * 1000
         time = parseInt(time)
         var date = new Date(time)
-        console.log(date)
         var y = date.getFullYear();    
         var m = date.getMonth() + 1;    
         m = m < 10 ? ('0' + m) : m;    
@@ -141,6 +140,11 @@ var Global = {
                 return path;
             }
         }
-    }
+    },
+    
+    //获取可视视图大小
+    GetVisibleSize () {
+        return cc.director.getVisibleSize()
+    },
 }
 module.exports = Global
