@@ -179,6 +179,21 @@ var BaseComponent = cc.Class({
     getEditBoxValue (name) {
         return this._analysisClass.getEditBoxValue(name)
     },
+    /**
+     * 设置Toggle组件的状态
+     * @param 节点名称
+     * @param 是否选中
+     */
+    SetToggle (name, selected) {
+        this._analysisClass.GetToggle(name).isCkecked = open
+    },
+    /**
+     * 获取Toggle组件状态
+     * @param 节点名
+     */
+    GetToggle (name) {
+        this._analysisClass.GetToggle(name).isCkecked
+    },
     //以节点对象从父节点移除自己
     removeNodeFromParent (node) {
         node.removeFromParent()

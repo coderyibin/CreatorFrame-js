@@ -1,6 +1,7 @@
 var Common = require("Common")
 const i18n = require('LanguageData')
 var Global = require('Global')
+var Sys = require('Sys')
 
 //ui解析类
 var Analysis = cc.Class({
@@ -35,6 +36,7 @@ var Analysis = cc.Class({
             let _node = node.children[i]
             this._registerEdit(_node, comp)
             this._registerButton(_node, comp)
+            this._registerToggle(_node, comp)
             this.startAnalysis(_node, comp)
             this._allNode[_node.name] = _node
         }
@@ -62,6 +64,11 @@ var Analysis = cc.Class({
         return node
     },
 
+    /**
+     * 注册输入框事件
+     * @param {*} node 节点
+     * @param {*} self 事件所在的逻辑脚本
+     */
     _registerEdit (node, self) {//节点--逻辑脚本
         let _comp = node.getComponent(cc.EditBox)
         if (_comp) {
@@ -72,6 +79,24 @@ var Analysis = cc.Class({
             if (self[funcName]) node.on("editing-did-began", self[funcName].bind(self), self);
             funcName = "_editBox_return_" + name;
             if (self[funcName]) node.on("editing-did-ended", self[funcName].bind(self), self);
+        }
+    },
+
+    /**
+     * 注册复选框事件
+     * @param node 节点
+     * @param comp 事件所在的逻辑脚本
+     */
+    _registerToggle (node, comp) {
+        let _comp = node.getComponent(cc.Toggle)
+        if (_comp) {
+            let name = node.name;
+            let event = '_toggle_' + name
+            if (comp[event]) {
+                node.on(Sys.Touch_Toggle, function (e) {
+                    comp[event](e.detail)
+                }, comp)
+            }
         }
     },
 
@@ -160,6 +185,19 @@ var Analysis = cc.Class({
             node.getComponent(cc.Label).string = value            
         }        
     }, 
+    /**
+     * 获取Toggle组件
+     * @param 节点名称
+     */
+    GetToggle (name) {
+        let node = this.getNode(name)
+        if (node) {
+            let comp = node.getComponent(cc.Toggle)
+            if (comp) {
+                return comp
+            } Com.wran('节点->', name, '不存在组件类型Toggle')
+        }
+    },
     //以节点名称移除节点从父节点
     removeNodeParent () {
         let node = this.getNode(name)

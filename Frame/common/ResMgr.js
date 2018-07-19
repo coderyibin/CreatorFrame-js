@@ -105,14 +105,14 @@ var Res = cc.Class({
             let res = g_Arr[file]
             return res instanceof cc.Prefab ? cc.instantiate(res) : res;
         }
-        let sName = cc.director.getScene().name;
-        let arr = RES.Res[sName];
-        for (let i in arr) {//遍历场景资源
-            if (file == i) {
-                let res = arr[i];
-                return res instanceof cc.Prefab ? cc.instantiate(res.data) : res;
-            }
-        }
+        // let sName = cc.director.getScene().name;
+        // let arr = RES.Res[sName];
+        // for (let i in arr) {//遍历场景资源
+        //     if (file == i) {
+        //         let res = arr[i];
+        //         return res instanceof cc.Prefab ? cc.instantiate(res.data) : res;
+        //     }
+        // }
         cc.warn("未找到该资源", file);
         return null;
     },

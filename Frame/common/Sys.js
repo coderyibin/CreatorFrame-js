@@ -22,5 +22,7 @@ module.exports = {
     Edit_End : 'editing-did-ended', //结束输入事件
     Editing : 'text-changed', //正在输入事件
     Edit_Return : 'editing-return', //返回输入事件
+
+    Touch_Toggle : "toggle",//复选框事件
     
 }

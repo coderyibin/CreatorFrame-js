@@ -13,6 +13,10 @@ var Common = {
     IsHotUpdate : false,
     //默认语言Chinese/Englist
     DefaultLanguage : 'Chinese',
+    //本地数据key
+    LocalKey : {
+        Audio : 'Audio'
+    },
     //场景名称
     SceneName : {
         SceneLogin : 'Scene_Login',

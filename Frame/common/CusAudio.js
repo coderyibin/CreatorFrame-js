@@ -7,6 +7,7 @@ var CusAudio = cc.Class({
     properties : {
         _audio : null,
         _backgroundMusic : null,
+        _isPlay : null,//是否播放声音
         _volume : {
             type : cc.Integer,
             default : 1
@@ -15,6 +16,26 @@ var CusAudio = cc.Class({
 
     ctor () {
         this._audio = cc.audioEngine
+        this._isPlay = true
+    },
+
+    /**
+     * 当前音效是否打开
+     */
+    GetPlay () {
+        return this._isPlay
+    },
+
+    /**
+     * 设置是否开启音效
+     */
+    SetAudioPlay (open) {
+        this._isPlay = open
+        if (! open) {
+            this.PauseAll()
+        } else {
+            this.ResumeAll()
+        }
     },
 
     /**
@@ -40,6 +61,7 @@ var CusAudio = cc.Class({
      * @return 返回一个音频对象id
      */
     Play (name, loop=false) {
+        if (! this._isPlay)  return
         return this._audio.play(name, loop, this._volume)
     },
 
@@ -48,6 +70,7 @@ var CusAudio = cc.Class({
      * @param {*} name 默认寻找button名称的音效资源
      */
     PlayButton (name='button') {
+        if (! this._isPlay)  return
         let res = RES.Get(name)
         if (res) {
             this._audio.play(res, false, this._volume)
@@ -60,6 +83,7 @@ var CusAudio = cc.Class({
      * @param {*} loop 是否循环
      */
     PlayMusic (name, loop=true) {
+        if (! this._isPlay)  return
         if (this._backgroundMusic) {
             this.StopMusic()
         }
