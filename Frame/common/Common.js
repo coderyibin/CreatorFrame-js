@@ -4,7 +4,7 @@ var Common = {
      */
     IsDebug : true,
     //是否显示fps
-    IsShowFPS : true,
+    IsShowFPS : false,
     //是否显示碰撞区域
     IsShowCollision : true,
     //是否开启多语言
@@ -32,6 +32,7 @@ var Common = {
         LayerNet : 'Layer_NetLoading',
         LayerHouse : 'Layer_House',
         LayerPetList : 'Layer_PetList',
+        LayerCtrl : 'Layer_Ctrl',
         LayerMap1 : 'Layer_Map(1)',
         LayerMap2 : 'Layer_Map(2)',
         LayerMap3 : 'Layer_Map(3)',
@@ -43,6 +44,7 @@ var Common = {
         LayerMap9 : 'Layer_Map(9)',
         LayerMap10 : 'Layer_Map(10)',
 
+        UnitTile : "Unit_Tile",
         UnitHero : "Unit_Hero",
     },
     //路由

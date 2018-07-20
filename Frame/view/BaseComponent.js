@@ -112,10 +112,15 @@ var BaseComponent = cc.Class({
         }
     },
 
-    //获取节点
+    /**
+     * 获取节点
+     * @param {*} name 节点名
+     */
+    GetNode (name) {return this.getNode(name)},
     getNode (name) {
         return this._analysisClass.getNode(name)
-    },
+    }, 
+    
     //显示节点
     ShowNode (name) {
         let node = this.getNode(name)

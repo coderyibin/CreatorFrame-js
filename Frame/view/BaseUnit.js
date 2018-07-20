@@ -10,8 +10,8 @@ var BaseUnit = cc.Class({
         UsedragonBones : {
             tooltip : "是否使用龙骨动画",
             type : cc.Enum({
-                'false' : 0,
-                'true' : 1
+                'false' : false,
+                'true' : true
             }),
             default : 0,
         },
@@ -21,6 +21,7 @@ var BaseUnit = cc.Class({
         _dragonBones : null,
         _armature : null,
         _nodes : null,
+        _dragonAnimations : null,
     },
 
     onLoad () {
@@ -35,15 +36,24 @@ var BaseUnit = cc.Class({
     },
 
     _initValue () {
-
+        this._dragonAnimations = {}
     },
 
     _initUI () {
-        if (this.UsedragonBones == 1) {
+        if (this.UsedragonBones == true) {//龙骨动画
             this._dragonBones = this.node.getComponent(dragonBones.ArmatureDisplay)
             this._armature = this._dragonBones.armature()
             dragonBones.WorldClock.clock.add(this._armature);
         }
+        if (this._data['pos']) this.node.position = this._data['pos'] 
+    },
+
+    /**
+     * 播放指定龙骨动画
+     * @param name 龙骨动画名称
+     */
+    PlayAnimation (name) {
+        this._armature.animation.play(name)
     },
 
     //获取骨骼动画插槽
@@ -61,6 +71,23 @@ var BaseUnit = cc.Class({
     //获取节点
     getNode (name) {
         return this._nodes[name]
+    },
+    /**
+     * 改变精灵纹理
+     * @param 图片纹理名称
+     */
+    ChangeSpriteFrame (name, image) {
+        let node = this.getNode(name)
+        if (node) {
+            let comp = node.getComponent(cc.Sprite)
+            if (comp) {
+                let res = RES.Get(image)
+                if (res) {
+                    comp.spriteFrame = image
+                    return
+                } Com.error('没有加载图片纹理:', image)
+            } Com.error('该节点没有精灵组件:', name)
+        }
     },
     //显示节点
     ShowNode (name) {
@@ -144,7 +171,13 @@ var BaseUnit = cc.Class({
     },
 
     Set (index, data) {
+        // if (this.Repload == 1 && this.UsedragonBones == 1) {
+        //     if (! data || ! data['dragonBones']) {
+        //         Com.error('骨骼动画名称参数必须传进来，字段：dragonBones')
+        //         return
+        //     }
+        // }
         this._data = data
-        this._index = index
+        this._index = index 
     }
 })
