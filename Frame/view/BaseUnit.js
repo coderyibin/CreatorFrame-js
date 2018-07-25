@@ -10,11 +10,17 @@ var BaseUnit = cc.Class({
         UsedragonBones : {
             tooltip : "是否使用龙骨动画",
             type : cc.Enum({
-                'false' : false,
-                'true' : true
+                'false' : 0,
+                'true' : 1
             }),
             default : 0,
         },
+        dragonBones : {
+            tooltip : "龙骨动画组件",
+            type : dragonBones.ArmatureDisplay,
+            default : null,
+        },
+
 
         _data : null,
         _index : null,
@@ -40,8 +46,12 @@ var BaseUnit = cc.Class({
     },
 
     _initUI () {
-        if (this.UsedragonBones == true) {//龙骨动画
-            this._dragonBones = this.node.getComponent(dragonBones.ArmatureDisplay)
+        if (this.UsedragonBones == 1) {//龙骨动画
+            this._dragonBones = this.dragonBones//this.node.getComponent(dragonBones.ArmatureDisplay)
+            if (! this._dragonBones) {
+                Com.error('龙骨动画节点不能是空的')
+                return
+            }
             this._armature = this._dragonBones.armature()
             dragonBones.WorldClock.clock.add(this._armature);
         }
@@ -53,11 +63,16 @@ var BaseUnit = cc.Class({
      * @param name 龙骨动画名称
      */
     PlayAnimation (name) {
+        if (! this._armature) {
+            return
+        }
+        this._armature.animation.stop(name)
         this._armature.animation.play(name)
     },
 
     //获取骨骼动画插槽
     GetSlots (name) {
+        if (! this._armature) return
         let array = this._armature.getSlots()
         for (let i in array) {
             let slot = array[i]
@@ -71,7 +86,21 @@ var BaseUnit = cc.Class({
     //获取节点
     getNode (name) {
         return this._nodes[name]
+    },GetNode(name) {return this.getNode(name)},
+
+    /**
+     * 设置文本值
+     */
+    SetLabelValue (name, string) {
+        let node = this.GetNode(name)
+        if (node) {
+            let comp = node.getComponent(cc.Label)
+            if (comp) {
+                comp.string = string
+            }
+        }
     },
+
     /**
      * 改变精灵纹理
      * @param 图片纹理名称
@@ -171,13 +200,21 @@ var BaseUnit = cc.Class({
     },
 
     Set (index, data) {
-        // if (this.Repload == 1 && this.UsedragonBones == 1) {
-        //     if (! data || ! data['dragonBones']) {
-        //         Com.error('骨骼动画名称参数必须传进来，字段：dragonBones')
-        //         return
-        //     }
-        // }
         this._data = data
         this._index = index 
-    }
+    },
+
+    /**
+     * 获取画布节点
+     */
+    GetCanvas () {
+        return cc.find("Canvas")
+    },
+
+    /**
+     * 获取可视视图大小
+     */
+    GetVisibleSize () {
+        return cc.director.getVisibleSize()
+    },
 })

@@ -8,6 +8,13 @@ var Global = {
         return arr;
     },
     /**
+     * 数组倒序
+     * @param arr 要倒序的数组
+     */
+    ArrayReverse (arr) {
+        return arr.reverse()
+    },
+    /**
      * 获取指定范围内的随机数
      * @param 最小值 number
      * @param 最大值 number 包含
@@ -79,6 +86,14 @@ var Global = {
     CloneArray (arr) {
         return arr.slice(0);
     },
+    /**
+     * 克隆节点
+     */
+    CloneNode (node) {
+        if (node) {
+            return cc.instantiate(node)
+        }
+    },
     //json转字符串
     JSONToStr (json) {
         return JSON.stringify(json)
@@ -146,5 +161,38 @@ var Global = {
     GetVisibleSize () {
         return cc.director.getVisibleSize()
     },
+
+    //求向量的夹角
+    GetVectorRadians(x1, y1, x2, y2) {
+	    return Math.acos((x1 * x2 + y1 * y2) / (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2)));
+    },
+    
+    /**
+     * OpenGL坐标转成格子坐标
+     * @param 像素坐标
+     * @param tiledMap 地图
+     * @returns 格子坐标
+     * */
+    GetTileCoordForPosition(position, tiledMap) {
+        let mapSize = tiledMap.getMapSize(); 
+        let tileSize = tiledMap.getTileSize();
+        let x = position.x / tileSize.width;
+        let y = (mapSize.height * tileSize.height - position.y) / tileSize.height;
+        return cc.v2(x, y);
+    },
+    /**
+     * tile坐标转成瓦片格子中心的OpenGL坐标
+     * @param 地图坐标
+     * @param 地图对象
+     * @returns 像素坐标
+     * */
+    GetPositionForTileCoord(tileCoord, tiledMap) {
+        let mapSize = tiledMap.getMapSize();
+        let tileSize = tiledMap.getTileSize();
+        let x = tileCoord.x * tileSize.width + tileSize.width / 2;
+        let y = (mapSize.height - tileCoord.y) * tileSize.height - tileSize.height / 2;
+        return cc.v2(x, y);
+    }
+
 }
 module.exports = Global

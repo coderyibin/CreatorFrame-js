@@ -21,6 +21,7 @@ var BaseComponent = cc.Class({
     },
 
     onLoad () {
+        this._script = cc.js.getClassName(this)
         this.OnInitValueBefore();
         this.__initValue();
         this.__initUI();
@@ -84,9 +85,33 @@ var BaseComponent = cc.Class({
      * 创建一个unit单元元件
      */
     showUnit (unitName, parent, index, data) {
-        let node = this.ShowLayer(unitName, parent)
+        let node = this.showLayer(unitName, parent)
         node.getComponent(node.name).Set(index, data)
+        return node
     }, ShowUnit (unitName, parent, index, data) {return this.showUnit(unitName, parent, index, data)},
+
+    /**
+     * 获取节点的组件
+     * @param name 节点名
+     * @param comp 组件名称
+     * @return 组件
+     */
+    GetNodeComp (name, comp) {
+        if (! comp || comp == "") {
+            Com.error('组件名称不能是空')
+            return
+        }
+        let node = this.getNode(name)
+        if (node) {
+            let c = node.getComponent(comp)
+            if (c) {
+                if (comp == 'cc.TiledMap') {
+                    CusTiledMap.InitTiledMap(c)                    
+                }
+                return c
+            } Com.error('节点下没有组件->', comp)
+        }
+    },
 
     //刷新列表*列表名称
     refreshList (listName) {
@@ -171,7 +196,7 @@ var BaseComponent = cc.Class({
     //设置数字文本值
     setNumberLabelValue (name, value) {
         this._analysisClass.setNumberLabelValue(name, value)
-    },
+    },SetNumberLabelValue (name, value, ...values) {this.setNumberLabelValue(name, value, ...values)},
     //设置进度条
     setProgressValue (name, value) {
         this._analysisClass.setProgressValue(name, value)

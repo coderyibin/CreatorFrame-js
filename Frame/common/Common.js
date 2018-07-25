@@ -26,6 +26,7 @@ var Common = {
         LayerMenu : 'Layer_Menu',
         LayerPause : 'Layer_Pause',
         LayerMap : 'Layer_Map',
+        LayerTiledMap : 'Layer_TiledMap',
         LayerGame : 'Layer_Game',
         LayerOver : 'Layer_Over',
         LayerMsg : 'Layer_Msg',
@@ -45,7 +46,11 @@ var Common = {
         LayerMap10 : 'Layer_Map(10)',
 
         UnitTile : "Unit_Tile",
-        UnitHero : "Unit_Hero",
+        UnitHero1 : "Unit_Hero1",
+        UnitHero2 : "Unit_Hero2",
+        UnitHero3 : "Unit_Hero3",
+        UnitHero4 : "Unit_Hero4",
+        UnitHero5 : "Unit_Hero5",
     },
     //路由
     Routes : {

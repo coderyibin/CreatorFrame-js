@@ -45,6 +45,3 @@ this.onMsg({content : '', title : '', select = true || false})
     新项目，先创建resources文件夹，然后创建resources.json文件，管理动态加载的资源
     关于多语言和一些游戏的基础配置，在Common.js脚本中
 
-
-<br>
- 更多说明请访问：frame.tianyaso.com

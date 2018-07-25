@@ -1,8 +1,6 @@
 var Common = require('Common')
 
-var Com = cc.Class({
-    extends : cc.Class,
-
+var Com = {
     info (...values) {
         if (Common.IsDebug) {
             console.log('日志->', ...values)
@@ -20,7 +18,6 @@ var Com = cc.Class({
             console.error('错误->', ...values)
         }
     }
-    
-})
+}
 
-window['Com'] = new Com()
+window['Com'] = Com
