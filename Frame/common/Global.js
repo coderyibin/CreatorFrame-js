@@ -192,6 +192,34 @@ var Global = {
         let x = tileCoord.x * tileSize.width + tileSize.width / 2;
         let y = (mapSize.height - tileCoord.y) * tileSize.height - tileSize.height / 2;
         return cc.v2(x, y);
+    },
+
+    /**
+     * 45 度交错地图 OpenGL坐标转成格子坐标
+     * @param 像素坐标
+     * @param tiledMap 地图
+     * @returns 格子坐标
+     * */
+    GetStaggeredCoordForPosition(position, tiledMap) {
+        let mapSize = tiledMap.getMapSize();
+        let tileSize = tiledMap.getTileSize();
+        let y = mapSize.height - 2 - ((2 * position.y) / tileSize.height);
+        let x = position.x / tileSize.width - (y % 2) / 2.0;
+        return cc.v2(x, y);
+    },
+
+    /**
+     * 45 度交错地图 tile坐标转成瓦片格子中心的OpenGL坐标
+     * @param 地图坐标
+     * @param 地图对象
+     * @returns 像素坐标
+     * */
+    GetPositionForStaggeredCoord(tileCoord, tiledMap) {
+        let mapSize = tiledMap.getMapSize();
+        let tileSize = tiledMap.getTileSize();
+        let x = tileCoord.x * tileSize.width + (tileCoord.y % 2) * tileSize.width / 2;
+        let y = (mapSize.height - (tileCoord.y + 1)) * tileSize.height / 2 - tileSize.height / 2;
+        return cc.v2(x, y);
     }
 
 }

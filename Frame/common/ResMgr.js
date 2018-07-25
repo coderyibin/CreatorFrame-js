@@ -11,12 +11,21 @@ var Res = cc.Class({
         this._global = {}
     },
 
+    /**
+     * 获取全局加载的资源包括配置文件与资源文件
+     */
     getGlobal () {
         return this._global
     },
 
-    getConfig () {
-        return this.getGlobal().Config
+    /**
+     * 获取配置文件，这里的json格式文件由框架的tools文件夹下的Data文件夹下的xlsx表格文件生成
+     * 请查看框架说明
+     * @param 文件名称 默认获取Config配置文件
+     * @returns 配置数据
+     */
+    getConfig (file='Config') {
+        return this.getGlobal()[file]
     }, 
 
     /**

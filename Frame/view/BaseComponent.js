@@ -1,18 +1,13 @@
 var CusEvent = require("CusEvent")
 var Common = require("Common")
 var Global = require("Global")
-var Analysis = require("Analysis")
+var UI = require('UIMgr')
 
 var BaseComponent = cc.Class({
-    extends : cc.Component,
+    extends : UI,
 
     properties : {
-        _script : null,
-        _canvas : null,
         _emitter : null,
-        _analysisClass : null,
-        _analysis : null,
-        _allNode : null,
         _hasLayer : null,
         //滚动容器
         _list_ :null,
@@ -21,7 +16,7 @@ var BaseComponent = cc.Class({
     },
 
     onLoad () {
-        this._script = cc.js.getClassName(this)
+        this._super(this._script)
         this.OnInitValueBefore();
         this.__initValue();
         this.__initUI();
@@ -35,21 +30,11 @@ var BaseComponent = cc.Class({
     OnInitValueBefore () {
     },
 
-    // /**
-    //  * 添加解析ui的key
-    //  */
-    // JoinAnalysis (...values) {
-    //     this._analysisClass.initAnalysis(values, this)
-    // },
-
     /**
      * 初始化变量
      */
     __initValue () {
-        this._analysisClass = new Analysis()
-        this._canvas = cc.find("Canvas")
         this._emitter = CusEvent.getInstance()
-        this._allNode = {}
         this._hasLayer = {}
     },
 
@@ -57,7 +42,7 @@ var BaseComponent = cc.Class({
      * 初始化ui
      */
     __initUI () {
-        this._getAllNode(this._canvas)
+        this.InitUI()
     },
     _isNative () {
         return cc.sys.isNative;
@@ -74,44 +59,10 @@ var BaseComponent = cc.Class({
                 return this._hasLayer[layerName]
             }
         }
-        let node = RES.Get(layerName)
-        if (parent) parent.addChild(node) 
-        else this._gameNode.addChild(node)
+        let node = this.ShowUnit(layerName, parent)
         if (only) this._hasLayer[layerName] = node
         return node
     },ShowLayer (layerName, parent, only=false) {return this.showLayer(layerName, parent, only)},
-
-    /**
-     * 创建一个unit单元元件
-     */
-    showUnit (unitName, parent, index, data) {
-        let node = this.showLayer(unitName, parent)
-        node.getComponent(node.name).Set(index, data)
-        return node
-    }, ShowUnit (unitName, parent, index, data) {return this.showUnit(unitName, parent, index, data)},
-
-    /**
-     * 获取节点的组件
-     * @param name 节点名
-     * @param comp 组件名称
-     * @return 组件
-     */
-    GetNodeComp (name, comp) {
-        if (! comp || comp == "") {
-            Com.error('组件名称不能是空')
-            return
-        }
-        let node = this.getNode(name)
-        if (node) {
-            let c = node.getComponent(comp)
-            if (c) {
-                if (comp == 'cc.TiledMap') {
-                    CusTiledMap.InitTiledMap(c)                    
-                }
-                return c
-            } Com.error('节点下没有组件->', comp)
-        }
-    },
 
     //刷新列表*列表名称
     refreshList (listName) {
@@ -136,114 +87,16 @@ var BaseComponent = cc.Class({
             this.getNode(list).addChild(node)
         }
     },
-
-    /**
-     * 获取节点
-     * @param {*} name 节点名
-     */
-    GetNode (name) {return this.getNode(name)},
-    getNode (name) {
-        return this._analysisClass.getNode(name)
-    }, 
     
-    //显示节点
-    ShowNode (name) {
-        let node = this.getNode(name)
-        if (node) {
-            node.active = true
-        }
-    },
-    //隐藏节点
-    HideNode (name) {
-        let node = this.getNode(name)
-        if (node) {
-            node.active = false
-        }
-    },
-    //节点是否隐藏
-    IsShowNode (name) {
-        let node = this.getNode(name)
-        if (node) {
-            return node.active
-        }
-    },
-    //获取资源节点
-    GetResNode (name) {
-        return RES.Get(name)
-    },
-    /**
-     * 场景节点解析
-     */
-    _getAllNode (node) {
-        this._analysisClass.startAnalysis(node, this)
-        this._allNode = this._analysisClass.GetAllNode()
-        UI.JoinMgr(this._script, this._allNode)
-    },
     //清空容器内容
     ClearList (name) {
         let node = this.getNode(name)
         let scroll = node.getComponent(cc.ScrollView)
         scroll.content.removeAllChildren()
     },
-    //获取文本组件值
-    getLabelValue (name) {
-        return this._analysisClass.getLabelValue(name)
-    },
-    //设置文本值
-    setLabelValue (name, value, ...values) {
-        this._analysisClass.setLabelValue(name, value, ...values)
-    },SetLabelValue (name, value, ...values) {this.setLabelValue(name, value, ...values)},
-    //设置数字文本值
-    setNumberLabelValue (name, value) {
-        this._analysisClass.setNumberLabelValue(name, value)
-    },SetNumberLabelValue (name, value, ...values) {this.setNumberLabelValue(name, value, ...values)},
-    //设置进度条
-    setProgressValue (name, value) {
-        this._analysisClass.setProgressValue(name, value)
-    },
-    //设置进度条
-    getProgressValue () {
-        return this._analysisClass.getProgressValue(name)
-    },
-    //获取输入框值
-    getEditBoxValue (name) {
-        return this._analysisClass.getEditBoxValue(name)
-    },
-    /**
-     * 设置Toggle组件的状态
-     * @param 节点名称
-     * @param 是否选中
-     */
-    SetToggle (name, selected) {
-        this._analysisClass.GetToggle(name).isCkecked = open
-    },
-    /**
-     * 获取Toggle组件状态
-     * @param 节点名
-     */
-    GetToggle (name) {
-        this._analysisClass.GetToggle(name).isCkecked
-    },
-    //以节点对象从父节点移除自己
-    removeNodeFromParent (node) {
-        node.removeFromParent()
-    },
-    //以节点名称移除节点
-    removeNameNode (name) {
-        this._analysisClass.removeNodeParent(name)
-    },
-
-    getCanvas () {
-        return this._canvas
-    },GetCanvas () {return this.getCanvas()},
-
-    //获取可视视图大小
-    GetVisibleSize () {
-        return cc.director.getVisibleSize()
-    },
 
     onDestroy () {
-        UI.Clear()
+        this._super()
         this._hasLayer = {}
     }
 });

@@ -1,7 +1,6 @@
-var Analysis = require('Analysis')
 
 var BaseUnit = cc.Class({
-    extends : cc.Component,
+    extends : require('UIMgr'),
 
     statics : {
     },
@@ -31,9 +30,8 @@ var BaseUnit = cc.Class({
     },
 
     onLoad () {
-        let analysis = new Analysis()
-        analysis.startAnalysis(this.node, this)
-        this._nodes = analysis.GetAllNode()
+        this._super()
+        this.InitUI()
     },
 
     start () {
@@ -55,7 +53,7 @@ var BaseUnit = cc.Class({
             this._armature = this._dragonBones.armature()
             dragonBones.WorldClock.clock.add(this._armature);
         }
-        if (this._data['pos']) this.node.position = this._data['pos'] 
+        if (this._data && this._data['pos']) this.node.position = this._data['pos'] 
     },
 
     /**
@@ -83,24 +81,6 @@ var BaseUnit = cc.Class({
         }
     },
 
-    //获取节点
-    getNode (name) {
-        return this._nodes[name]
-    },GetNode(name) {return this.getNode(name)},
-
-    /**
-     * 设置文本值
-     */
-    SetLabelValue (name, string) {
-        let node = this.GetNode(name)
-        if (node) {
-            let comp = node.getComponent(cc.Label)
-            if (comp) {
-                comp.string = string
-            }
-        }
-    },
-
     /**
      * 改变精灵纹理
      * @param 图片纹理名称
@@ -118,20 +98,7 @@ var BaseUnit = cc.Class({
             } Com.error('该节点没有精灵组件:', name)
         }
     },
-    //显示节点
-    ShowNode (name) {
-        let node = this._nodes[name]
-        if (node) {
-            node.active = true
-        }
-    },
-    //隐藏节点
-    HideNode (name) {
-        let node = this._nodes[name]
-        if (node) {
-            node.active = false
-        }
-    },
+    
     //隐藏骨骼部分
     HideDragon (slot) {
         slot.parent.visible = false
@@ -139,14 +106,6 @@ var BaseUnit = cc.Class({
     //显示骨骼部分
     ShowDragon (slot) {
         slot.parent.visible = true
-    },
-
-    Remove () {
-        this.node.removeFromParent()
-    },
-
-    Hide () {
-        this.node.active = false
     },
 
     /**
@@ -204,17 +163,4 @@ var BaseUnit = cc.Class({
         this._index = index 
     },
 
-    /**
-     * 获取画布节点
-     */
-    GetCanvas () {
-        return cc.find("Canvas")
-    },
-
-    /**
-     * 获取可视视图大小
-     */
-    GetVisibleSize () {
-        return cc.director.getVisibleSize()
-    },
 })

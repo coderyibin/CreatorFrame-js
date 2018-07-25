@@ -41,4 +41,4 @@ var NodeMgr = cc.Class({
     },
 })
 
-window['UI'] = new NodeMgr()
+window['NodeMgr'] = new NodeMgr()
