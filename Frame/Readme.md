@@ -46,5 +46,6 @@ this.onMsg({content : '', title : '', select = true || false})
     关于多语言和一些游戏的基础配置，在Common.js脚本中
 
 
+
 <br>
 更多框架说明：http://frame.tianyaso.com

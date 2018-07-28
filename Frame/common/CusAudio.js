@@ -31,6 +31,7 @@ var CusAudio = cc.Class({
      */
     SetAudioPlay (open) {
         this._isPlay = open
+
         if (! open) {
             this.PauseAll()
         } else {
@@ -69,7 +70,7 @@ var CusAudio = cc.Class({
      * 按钮音效
      * @param {*} name 默认寻找button名称的音效资源
      */
-    PlayButton (name='button') {
+    PlayButton (name=RES.GetConfig().BUTTONMUSIC) {
         if (! this._isPlay)  return
         let res = RES.Get(name)
         if (res) {

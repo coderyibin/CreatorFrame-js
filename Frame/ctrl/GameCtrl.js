@@ -9,7 +9,9 @@ var GameCtrl = cc.Class({
     },
 
     ctor () {
+        Com.info('初始化游戏控制器')
         this._gameData = new GameData()
+        this.SetAudio(this.GetAudio())
     },
 
     /**

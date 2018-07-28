@@ -25,12 +25,15 @@ var BaseaScene = cc.Class({
         this._touchEnable = false
         this._collision.enabled = false//未开启碰撞
         this._joinLayer = {}
-        this._arrEmit = ['onMsg', 'runScene', 'onNetLoading', 'onRemoveNetLoading', 'onClearLayer']
+        this._arrEmit = ['onMsg', 'onPause', 'onResume', 'runScene', 'onNetLoading', 'onRemoveNetLoading', 'onClearLayer']
         this._gameNode = this.getCanvas()
         this.OnInit()
+        this._log()
 
         this._openPhysics()
         this._openTouch()
+        //初始化游戏控制器
+        require('GameCtrl').getInstance()
     },
 
     start () {
@@ -38,10 +41,15 @@ var BaseaScene = cc.Class({
         this.OnInitUi()
     },
 
+    _log () {
+        if (! Common.IsDebug) return
+        if (this._collision.enabled) Com.info('开启碰撞检测')
+    },
+
     //注册自定义事件
     registerEvent () {
         let self = this;
-        Com.info('cur scene event:', self._arrEmit);
+        Com.info('cur' + this._script + ' event:', self._arrEmit);
         for (let i = 0; i < self._arrEmit.length; i ++) {
             let sName = self._arrEmit[i];
             if (self[sName]) {
@@ -50,6 +58,39 @@ var BaseaScene = cc.Class({
                 Com.warn("未注册事件", sName);
             }
         }
+    },
+
+    /**
+     * 监听系统事件
+     */
+    _listenerSysEvent () {
+        let self = this
+        cc.game.on(Sys.Game_Hide, function () {
+            self.onPause()
+
+        })
+        cc.game.on(Sys.Game_Show, function () {
+            self.onResume()
+
+        })
+    },
+
+    /**
+     * 游戏暂停
+     */
+    onPause () {
+        // cc.game.pause()//这个是暂停游戏的主循环,包括逻辑渲染和事件
+        Com.info('游戏暂停')
+        cc.director.pause()
+    },
+
+    /**
+     * 游戏继续
+     */
+    onResume () {
+        // cc.game.resume()
+        Com.info('游戏继续')
+        cc.director.pause()
     },
 
     onClearLayer (layerName) {
@@ -92,24 +133,6 @@ var BaseaScene = cc.Class({
     _openTouch () {
         if (! this._touchEnable) return 
         new TouchMgr().RegisterTouchNromal(this)
-        // Com.info('开启触摸事件')
-        // let start = null
-        // this.node.on(Sys.Touch_Begin, function (e) {
-        //     let pos = e.touch.getLocation()
-        //     this._startPos = start = pos
-        //     if (this["OnTouchBegin"]) this["OnTouchBegin"](pos)
-        // }, this)
-        // this.node.on(Sys.Touch_Cancel, function (e) {
-        //     if (this["OnTouchCancel"]) this["OnTouchCancel"](e.touch.getLocation())
-        // }, this)
-        // this.node.on(Sys.Touch_End, function (e) {
-        //     let pos = e.touch.getLocation()
-        //     if (this["OnTouchEnd"]) this["OnTouchEnd"](start, pos)
-        // }, this)
-        // this.node.on(Sys.Touch_Move, function (e) {
-        //     let pos = e.touch.getLocation()
-        //     if (this["OnTouchMove"]) this["OnTouchMove"](start, pos)
-        // }, this)
     },
 
     /**

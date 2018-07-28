@@ -53,7 +53,25 @@ var BaseUnit = cc.Class({
             this._armature = this._dragonBones.armature()
             dragonBones.WorldClock.clock.add(this._armature);
         }
-        if (this._data && this._data['pos']) this.node.position = this._data['pos'] 
+        this._initProperty()
+    },
+
+    /**
+     * 初始化节点的一些属性
+     */
+    _initProperty () {
+        if (this._data) {
+            if (this._data['pos']) this.node.position = this._data['pos'] 
+            if (this._data['rotation']) this.node.rotation = this._data['rotation']
+            if (this._data['size']) this.node.setContentSize(cc.size(this._data['size'].width, this._data['size'].height))
+        }
+    },
+
+    /**
+     * 获取对象的Index
+     */
+    GetIndex () {
+        return this._index
     },
 
     /**
@@ -80,24 +98,6 @@ var BaseUnit = cc.Class({
             }
         }
     },
-
-    /**
-     * 改变精灵纹理
-     * @param 图片纹理名称
-     */
-    ChangeSpriteFrame (name, image) {
-        let node = this.getNode(name)
-        if (node) {
-            let comp = node.getComponent(cc.Sprite)
-            if (comp) {
-                let res = RES.Get(image)
-                if (res) {
-                    comp.spriteFrame = image
-                    return
-                } Com.error('没有加载图片纹理:', image)
-            } Com.error('该节点没有精灵组件:', name)
-        }
-    },
     
     //隐藏骨骼部分
     HideDragon (slot) {
@@ -117,7 +117,8 @@ var BaseUnit = cc.Class({
         // console.log('on collision enter');
 
         if (this['onCollisionStart']) {
-            this['onCollisionStart'](self, other)
+            //碰撞组件自己 别人的碰撞组建 自己的节点 别人的节点
+            this['onCollisionStart'](self, other, self.node, other.node)
         }
 
         // // 碰撞系统会计算出碰撞组件在世界坐标系下的相关的值，并放到 world 这个属性里面
@@ -156,6 +157,10 @@ var BaseUnit = cc.Class({
      */
     onCollisionExit: function (other, self) {
         // console.log('on collision exit');
+        if (this['onCollisionEnd']) {
+            //碰撞组件自己 别人的碰撞组建 自己的节点 别人的节点
+            this['onCollisionEnd'](self, other, self.node, other.node)
+        }
     },
 
     Set (index, data) {

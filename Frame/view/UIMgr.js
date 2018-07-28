@@ -86,22 +86,23 @@ var UI = cc.Class({
             let name = node.name;
             let funcName = "_editBox_change_" + name;
             let register = false
-            if (self[funcName]) {
+            let self = this
+            if (self[funcName]) {//输入框改变的时候调用
                 node.on(Sys.Editing, self[funcName].bind(self), self);
                 register = true
             }
             funcName = "_editBox_began_" + name;
-            if (self[funcName]) {
+            if (self[funcName]) {//输入框开始输入的时候调用
                 node.on(Sys.Edit_Begin, self[funcName].bind(self), self);
                 register = true
             }
             funcName = "_editBox_return_" + name;
-            if (self[funcName]) {
+            if (self[funcName]) {//暂时不清楚干嘛用的
                 node.on(Sys.Edit_Return, self[funcName].bind(self), self);
                 register = true
             }
             funcName = "_editBox_end_" + name;
-            if (self[funcName]) {
+            if (self[funcName]) {//输入框结束的时候调用
                 node.on(Sys.Edit_End, self[funcName].bind(self), self);
                 register = true
             }
@@ -316,7 +317,8 @@ var UI = cc.Class({
      * @param 是否选中
      */
     SetToggle (name, selected) {
-        this.GetToggle(name).isCkecked = open
+        let comp = this.GetToggle(name)
+        comp.isChecked = selected
     },
     
     /**
@@ -365,6 +367,14 @@ var UI = cc.Class({
      * @param name
      */
     HideNode (name) {
+        if (! name || name == '') {
+            Com.error('name 不能为空')
+            return
+        }
+        if (name instanceof Object) {
+            name.active = false
+            return
+        }
         let node = this.GetNode(name)
         if (node) {
             node.active = false
@@ -489,6 +499,10 @@ var UI = cc.Class({
      * @returns 返回创建完成的节点
      */
     ShowUnit (name, parent, index, data) {
+        if (! parent) {
+            Com.error('父节点不能是空的')
+            return
+        }
         let node = this.GetResNode(name)
         parent.addChild(node)
         let comp = this.GetNodeComp(node, node.name)
@@ -496,6 +510,24 @@ var UI = cc.Class({
             comp.Set(index, data)
         }
         return node
+    },
+
+    /**
+     * 更改精灵帧
+     * @param 精灵的图片名称
+     */
+    ChangeSpriteFrame (name, image) {
+        let node = this.getNode(name)
+        if (node) {
+            let comp = node.getComponent(cc.Sprite)
+            if (comp) {
+                let res = RES.Get(image)
+                if (res) {
+                    comp.spriteFrame = image
+                    return
+                } Com.error('没有加载图片纹理:', image)
+            } Com.error('该节点没有精灵组件:', name)
+        }
     },
 
     onDestroy () {

@@ -29,6 +29,13 @@ var GameData = cc.Class({
     GetAudio () {
         if (this._audio == null) {
             this._audio = this.GetLocalNormal(Common.LocalKey.Audio) || true
+            if (typeof this._audio == 'string' && this._audio.constructor == String) {
+                if (this._audio == 'false') {
+                    this._audio = false
+                } else {
+                    this._audio = true                    
+                }
+            }
         } return this._audio
     },
 

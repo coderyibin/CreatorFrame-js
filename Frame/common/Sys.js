@@ -24,5 +24,10 @@ module.exports = {
     Edit_Return : 'editing-return', //返回输入事件
 
     Touch_Toggle : "toggle",//复选框事件
+
+    Game_Hide : "game_on_hide",//游戏退到后台事件
+    Game_Show : "game_on_show",//游戏返回前台事件
+
+
     
 }

@@ -24,9 +24,15 @@ var Res = cc.Class({
      * @param 文件名称 默认获取Config配置文件
      * @returns 配置数据
      */
-    getConfig (file='Config') {
+    GetConfig (file='Config') {
         return this.getGlobal()[file]
     }, 
+    /**
+     * 兼容旧项目
+     */
+    getConfig (file='Config') {
+        return this.getGlobal()[file]
+    },
 
     /**
      * 加载全局资源组
