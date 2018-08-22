@@ -66,7 +66,11 @@ function writeFile (filestr, json) {
     });
 }
 
+console.log('\r')
+console.log('正在写入多语言配置文件······')
 writeFile("English", English);
 writeFile("Chinese", Chinese);
 writeFile("ChineseChara", ChineseChara);
 //有其他语言，下面继续添加调用
+console.log('写入多语言配置文件结束······')
+console.log('\r')

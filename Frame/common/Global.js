@@ -15,6 +15,18 @@ var Global = {
         return arr.reverse()
     },
     /**
+     * 获取数组最小值
+     */
+    GetArrayMin (array) {
+        return array.sort(function(a,b){return a-b;})[0]
+    },
+    /**
+     * 获取数组最大值
+     */
+    GetArrayMax (array) {
+        return array.sort(function(a,b){return b-a;})[0]
+    },
+    /**
      * 获取指定范围内的随机数
      * @param 最小值 number
      * @param 最大值 number 包含
@@ -79,8 +91,9 @@ var Global = {
     CloneJSON (jsonData) {
         return JSON.parse(JSON.stringify(jsonData));
     },
+    //兼容
     CloneJson (jsonData) {
-        return CloneJSON(jsonData)
+        return Global.CloneJSON(jsonData)
     },
     //克隆数组
     CloneArray (arr) {
@@ -141,6 +154,16 @@ var Global = {
      */
     GetStrLen (str, start, len) {
         return str.substr(start, len)
+    },
+
+    /**
+     * 数组删除元素
+     * @param 要操作的数组
+     * @param 数组下标
+     * @param 要删除的个数
+     */
+    DelArray (array, index, count=1) {
+        return array.splice(index, count)
     },
     /**
      * 获取资源文件名称

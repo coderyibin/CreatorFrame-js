@@ -14,6 +14,11 @@ var BaseMsg = cc.Class({
         this._runAcrion()
     },
 
+    Set (data) {
+        if (! data) return
+        this.set(data)
+    },
+
     set (data) {
         this._data = data
         if (data.title) this.setLabelValue('Title', data.title)
@@ -60,14 +65,21 @@ var BaseMsg = cc.Class({
     },
 
     _tap_Left_Cancel () {
+        if (this._cancelCb) {
+            this._cancelCb()
+        }
         this.remove()        
     },
 
     _tap_Right_Ok () {
-        this.remove()
+        if (this._okCb) {
+            this._okCb(this)
+        }
     },
 
     _tap_Ok () {
-        this.remove()
+        if (this._okCb) {
+            this._okCb(this)
+        }
     },
 })

@@ -24,12 +24,16 @@ function praseExcel(list)
 }
 
 function writeFile (filestr, json) {   
+    console.log('\r')
+    console.log('正在写入游戏配置文件······\r')
 	var _path = path.resolve(__dirname, "../").substr(0, path.resolve(__dirname, "../").length - 5)
     var p = _path + "/assets/resources/" + filestr + ".json";
     //异步方法
     fs.writeFile(p, json, function(err){
         if(err) console.log(filestr, '写文件操作失败--', p);
         else console.log(filestr, '写文件操作成功--', p);
+        console.log('写入游戏配置文件结束······\r')
+        console.log('\r')
     });
 }
 

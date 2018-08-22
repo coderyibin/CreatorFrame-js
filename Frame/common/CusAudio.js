@@ -70,8 +70,8 @@ var CusAudio = cc.Class({
      * 按钮音效
      * @param {*} name 默认寻找button名称的音效资源
      */
-    PlayButton (name=RES.GetConfig().BUTTONMUSIC) {
-        if (! this._isPlay)  return
+    PlayButton (name=RES.GetConfig() ? RES.GetConfig()['BUTTONMUSIC'] : '') {
+        if (! this._isPlay || name == '')  return
         let res = RES.Get(name)
         if (res) {
             this._audio.play(res, false, this._volume)

@@ -16,13 +16,19 @@ var UI = cc.Class({
         _allNode : null,
         _canvas : null,
         _size : null,
+        _disTime : null,
+        _global : null,
+        _common : null,
     },
 
     onLoad () {
         this._script = cc.js.getClassName(this)
-        i18n.init(Common.DefaultLanguage);
+        this.name = this._script
         this._canvas = cc.find('Canvas')
         this._size = this.node.getContentSize()
+        this._disTime = {}
+        this._global = Global
+        this._common = Common
     },
 
     /**
@@ -64,14 +70,31 @@ var UI = cc.Class({
     },
 
     /**
+     * 设置按钮间隔时间
+     * 设置间隔时间可以触发，避免玩家一直点击造成异常
+     * @param 节点名称
+     * @param 间隔时间
+     */
+    SetButtonTime (key, value) {
+        this._disTime[key] = value
+    },
+
+    /**
      * 注册按钮事件
      * @param {*} node 遍历到的节点对象
      */
     _registerButton (node) {
-        let name = '_tap_' + node.name
+        let bname = node.name
+        let name = '_tap_' + bname
+        let cancel = '_cancel_' + bname
         //当前节点的用户脚本组件有这个成员函数，则注册事件，没有则略过
         if (this[name]) {
-            node.addComponent('ButtonClick').CreateEvent(name, this)
+            let time = 0
+            if (this._disTime[bname]) {
+                time = this._disTime[bname]
+            }
+            node.addComponent('ButtonClick').CreateEvent(name, cancel, this, time)
+            NodeMgr.JoinButton(this._script, name)
             return true
         } return false
     },
@@ -165,6 +188,23 @@ var UI = cc.Class({
             let comp = node.getComponent(cc.ProgressBar)
             if (comp) {
                 return comp.progress
+            } else {
+                Com.error('没有该' + name + '节点没有组件ProgressBar')
+            }
+        }
+    },
+
+    /**
+     * 设置进度条总长度
+     * @param name 节点名称
+     * @param total 总长度
+     */
+    SetProgressTotal (name, total) {
+        let node = this.GetNode(name)
+        if (node) {
+            let comp = node.getComponent(cc.ProgressBar)
+            if (comp) {
+                comp.totalLength = total
             } else {
                 Com.error('没有该' + name + '节点没有组件ProgressBar')
             }
@@ -346,9 +386,23 @@ var UI = cc.Class({
 
     /**
      * 移除自己
+     * @param clean 是否释放所占用内存
      */
-    Remove () {
+    Remove (clean=false) {
+        // Com.info('移除当前节点->', this._script)
         this.node.removeFromParent()
+        this.ClaenData()
+        if (clean) {
+            this.node.destroy() 
+            // Com.info('彻底清理' + this.name)
+        }
+    },
+
+    /**
+     * 兼容旧项目
+     */
+    remove () {
+        this.Remove()
     },
 
     /**
@@ -356,6 +410,9 @@ var UI = cc.Class({
      * @param name
      */
     ShowNode (name) {
+        if (name instanceof Object) {
+            return name.active = true
+        }
         let node = this.GetNode(name)
         if (node) {
             node.active = true
@@ -364,7 +421,7 @@ var UI = cc.Class({
 
     /**
      * 隐藏指定节点
-     * @param name
+     * @param name 节点名称或者节点对象
      */
     HideNode (name) {
         if (! name || name == '') {
@@ -386,6 +443,9 @@ var UI = cc.Class({
      * @param name
      */
     IsHideNode (name) {
+        if (name instanceof Object) {
+            return ! name.active
+        }
         let node = this.GetNode(name)
         if (node) {
             return ! node.active
@@ -533,6 +593,8 @@ var UI = cc.Class({
     onDestroy () {
         this._clean()
     },
+
+    ClaenData () { },
 
     /**
      * 清理

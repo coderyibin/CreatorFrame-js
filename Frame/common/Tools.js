@@ -794,6 +794,38 @@ var Tools = {
     GetPointToWorldAR (node, point) {
         return node.convertToWorldSpaceAR(point)
     },
+
+    /**
+     * 计算两点的角度
+     * @param v1 原点 开始坐标
+     * @param v2 当前坐标 结束坐标
+     * @return rotation
+     */
+    GetPointRotation (v1, v2) {
+        // v2 = Tools.GetSub(v2, v1)
+        let angle = Math.atan2((v2.y - v1.y), (v2.x - v1.x)) //弧度  0.6435011087932844
+        let rotation = angle * (180 / Math.PI); //角度  36.86989764584402
+        return rotation
+    },
+
+    /**
+     * 弧度转换为度
+     * converts radians to degrees
+     * @param {Number} angle
+     * @return {Number}
+     * @method radiansToDegrees
+     */
+    GetRadiansToDegrees (angle) {
+        return cc.radiansToDegrees(angle)
+    },
+
+    /**
+     * 克隆节点
+     * @param node 要克隆的节点
+     */
+    Clone (node) {
+        return cc.instantiate(node)
+    }
 }
 
 window['Tools'] = Tools

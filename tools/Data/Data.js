@@ -17,7 +17,7 @@ function praseExcel(list, name)
         {
             var curData = excleData[j];
             // json[curData[0]] = curData
-            console.log(curData)
+            // console.log(curData)
             var _data = {}
             for (var k in curData) {
                 var type = typeArray[k]
@@ -31,8 +31,29 @@ function praseExcel(list, name)
                     _data[keyArray[k]] = curData[k] + ''
                 } else if (type == 'float') {
                     _data[keyArray[k]] = curData[k]
+                } else if (type == 'list') {
+                    let temp = curData[k].replace('[', '')
+                    temp = temp.replace(']', '')
+                    temp = temp.split(',')
+                    _data[keyArray[k]] = temp
+                } else if (type == 'pos') {
+                    let temp = curData[k].replace('[', '')
+                    temp = temp.replace(']', '')
+                    temp = temp.split(',')
+                    _data[keyArray[k]] = {
+                        x : parseInt(temp[0]),
+                        y : parseInt(temp[1])
+                    }
+                } else if (type == 'size') {
+                    let temp = curData[k].replace('[', '')
+                    temp = temp.replace(']', '')
+                    temp = temp.split(',')
+                    _data[keyArray[k]] = {
+                        width : parseInt(temp[0]),
+                        height : parseInt(temp[1])
+                    }
                 } else {
-                    throw new Error('表格有误->', name, ':', j);
+                    throw new Error('表格有误->'+ name+ ':'+ j);
                 }
                 if (curData[k] == '-') {
                     if (type == 'string') {
@@ -53,12 +74,16 @@ function praseExcel(list, name)
 }
 
 function writeFile (filestr, json) {   
+    console.log('\r')
+    console.log('正在写入游戏配置表······\r')
 	var _path = path.resolve(__dirname, "../").substr(0, path.resolve(__dirname, "../").length - 5)
     var p = _path + "/assets/resources/" + filestr + ".json";
     //异步方法
     fs.writeFile(p, json, function(err){
         if(err) console.log(filestr, '写文件操作失败--', p);
         else console.log(filestr, '写文件操作成功--', p);
+        console.log('写入游戏配置表任务结束······\r')
+        console.log('\r')
     });
 }
 

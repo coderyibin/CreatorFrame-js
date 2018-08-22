@@ -1,107 +1,58 @@
-var BaseScene = require('BaseScene')
-var Common = require('Common')
-var GameCtrl = require('GameCtrl')
-
-var BaseLoading = cc.Class({
-    extends : BaseScene,
+var HotUpdate = cc.Class({
+    extends : cc.Class,
 
     properties : {
-        manifestUrl : {
-            default : null,
-            tooltip : "本地的热更新配置文件",
-            url : cc.RawAsset
-        },
-        HotUpdate : {
-            default : null,
-            tooltip : "热更新资源弹窗",
-            type : cc.Prefab
-        },
-        _hotUpdateComp : null,//热更新弹窗脚本
-        _gameScene : '',
-        _storagePath : '',
-        _checkListener : null,
-        _updating : null,
-        _canRetry : null,
-        _updateListener : null,
-        _am : null,
+        _storagePath : null,
         _versionCompareHandle : null,
-    },
-
-    onLoad () {
-        this._super()
-        //设置是否显示帧率
-        cc.director.setDisplayStats(Common.IsShowFPS);
-        this._gameScene = Common.SceneName.SceneLogin
-        
-        //初始化热更新弹窗，如果有的话
-        if (this.HotUpdate) {
-            let hot = cc.instantiate(this.HotUpdate)
-            this.HotUpdate = hot
-            this._hotUpdateComp = hot.getComponent(hot.name)
-        }
-
-        this.OnInit()
-        if (! this._isNative()) {//直接进行网页h5
-
-            this._fLoadRes();  
-
-        } else {//检查更新
-            if (Common.IsHotUpdate) this._fCheckUpdate();
-            else this._loadResCfgJson()
-        }
+        _am : null,
+        _checkListener : null,
+        _canRetry : null,
+        _manifestUrl : null,
+        _updating : null,
+        _updateListener : null,
+        _progress : null,
+        _updatePanel : null,
+        _updateOk: null,
     },
 
     /**
-     * 初始化一些数据。在start之前执行
+     * 设置热更新回调函数
+     * @param {*} panel 热更新信息面板
+     * @param {*} progress 热更新进度回调函数
+     * @param {*} ok 热更新完成回调函数
      */
-    OnInit () { },
-
-    //显示更新弹窗
-    showUpdateTip () {
-        // RES.loadRes("StartGame/Prefab/Tip_Update", ()=>{
-        //     // this.showLayer(MODULE.UPDATE, {cb : this.hotUpdate.bind(this)});
-        // });
-        Com.info('显示热更新弹窗')
-    },
-
-    _loadResCfgJson (cb) {
-        let self = this
-        Com.info('开始加载资源')
-        RES.loadJson("resources", (res)=>{
-            let r = []
-            for (let i in res) {
-                r = r.concat(res[i] || [])
-            }
-            if (r.length == 0) {this._comeInGame(cb);return}
-            RES.loadArray(r, function (index, len, res) {
-                if (self['progress']) {
-                    self.progress(index, len, res);
-                } else {
-                    Com.warn('该子类未实现progress函数');
-                }
-            }, function () {
-                self._comeInGame(cb);
-            });
-        });
+    SetCallBack (panel, progress, ok) {
+        this._setUpdatePanel(panel)
+        this._setProgress(progress)
+        this._setUpdateOk(ok)
     },
 
     /**
-     * 资源加载完成 进入游戏
-     * @param {*} cb 
+     * 设置进度条回调函数
      */
-    _comeInGame (cb) {
-        this.setProgressValue('progress', 1)
-        this.setLabelValue('jindu', 'JINDUWANCHENG')
-        this._runScene(this._gameScene)
-        GameCtrl.getInstance().InitGameConfig()
+    _setProgress (progress) {
+        this._progress = progress
     },
 
-    //h5 直接加载资源
-    _fLoadRes (cb) {
-        this._loadResCfgJson(cb);
+    /**
+     * 新更新面板显示
+     */
+    _setUpdatePanel (panel) {
+        this._updatePanel = panel
     },
-    //检查更新
-    _fCheckUpdate () {
+
+    /**
+     * 更新完成回调函数
+     */
+    _setUpdateOk (updateOk) {
+        this._updateOk = updateOk
+    },
+
+    /**
+     * 热更新对比文件
+     */
+    _setUpdateManifestUrl (manifestUrl) {
+        this._manifestUrl = manifestUrl
     },
 
     /**
@@ -109,7 +60,7 @@ var BaseLoading = cc.Class({
      */
     _fCheck () {
         // Hot update is only available in Native build
-        if (! this._isNative()) {
+        if (! cc.sys.isNative) {
             return;
         }
         this._storagePath = ((jsb.fileUtils ? jsb.fileUtils.getWritablePath() : '/') + 'blackjack-remote-asset');
@@ -181,8 +132,8 @@ var BaseLoading = cc.Class({
                     console.log('Updated file: ' + msg);
                 }
                 // this._node_HotUpdate.setProgressLength(event.getDownloadedBytes(), event.getTotalBytes());
-                if (this['_hotUpdateProgress']) {
-                    this['_hotUpdateProgress'](event.getDownloadedBytes(), event.getTotalBytes())
+                if (this._progress) {
+                    this._progress(event.getDownloadedBytes(), event.getTotalBytes())
                 }
                 break;
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
@@ -192,9 +143,8 @@ var BaseLoading = cc.Class({
                 break;
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
                 failed = true;
-                Com.info('开始进入游戏1')
                 console.log("Already up to date with the latest remote version.");
-                this._loadResCfgJson()
+                if (this._updateOk) this._updateOk()
                 break;
             case jsb.EventAssetsManager.UPDATE_FINISHED:
                 needRestart = true;
@@ -229,6 +179,7 @@ var BaseLoading = cc.Class({
             cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
             jsb.fileUtils.setSearchPaths(searchPaths);
 
+            this.Destroy()
             cc.audioEngine.stopAll();
             cc.game.restart();
         }
@@ -303,12 +254,11 @@ var BaseLoading = cc.Class({
                 console.log("Fail to download manifest file, hot update skipped.");//备注处理
                 break;
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
-                Com.info('开始进入游戏2')
                 console.log("Already up to date with the latest remote version.");
-                this._loadResCfgJson()
+                if (this._updateOk) this._updateOk()
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
-                this.showUpdateTip();
+                if (this._updatePanel) this._updatePanel() 
                 break;
             default:
                 return;
@@ -328,7 +278,7 @@ var BaseLoading = cc.Class({
         }
     },
 
-    onDestroy: function () {
+    Destroy: function () {
         if (this._updateListener) {
             this._am.setEventCallback(null);
             this._updateListener = null;

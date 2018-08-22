@@ -21,7 +21,11 @@ var NodeMgr = cc.Class({
 
     //按钮事件
     JoinButton (script, name) {
-        this._button[script] = name
+        if (! this._button[script]) {
+            this._button[script] = []
+        }
+        // Com.info('按钮事件-->', script, name)
+        this._button[script].push(name)
     },
 
     //获取界面节点

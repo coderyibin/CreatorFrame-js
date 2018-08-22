@@ -1,3 +1,5 @@
+var Sys = require('Sys')
+var CusEvent = require('CusEvent')
 
 var BaseUnit = cc.Class({
     extends : require('UIMgr'),
@@ -27,11 +29,17 @@ var BaseUnit = cc.Class({
         _armature : null,
         _nodes : null,
         _dragonAnimations : null,
+        _event : null,
     },
 
     onLoad () {
         this._super()
         this.InitUI()
+        this._initUnit()
+    },
+
+    _initUnit() {
+        this._event = CusEvent.getInstance()
     },
 
     start () {
@@ -77,13 +85,18 @@ var BaseUnit = cc.Class({
     /**
      * 播放指定龙骨动画
      * @param name 龙骨动画名称
+     * @param call 龙骨动画播放结束回调 或者播放一帧结束回调
+     * @param call 龙骨动画播放几次
      */
-    PlayAnimation (name) {
+    PlayAnimation (name, call, count=-1) {
         if (! this._armature) {
             return
         }
         this._armature.animation.stop(name)
-        this._armature.animation.play(name)
+        this._armature.animation.play(name, count)
+        if (call) {
+            this.dragonBones.addEventListener(Sys.Dragon_Complete, call, this)
+        }
     },
 
     //获取骨骼动画插槽
@@ -148,6 +161,10 @@ var BaseUnit = cc.Class({
      */
     onCollisionStay: function (other, self) {
         // console.log('on collision stay');
+        if (this['onCollisionIng']) {
+            //碰撞组件自己 别人的碰撞组建 自己的节点 别人的节点
+            this['onCollisionIng'](self, other, self.node, other.node)
+        }
     },
 
     /**

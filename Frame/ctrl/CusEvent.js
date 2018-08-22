@@ -4,6 +4,7 @@ var CusEvent = cc.Class({
 
     properties : {
         _event : null,
+        _once : null
     },
 
     statics : {
@@ -17,8 +18,15 @@ var CusEvent = cc.Class({
 
     ctor () {
         this._event = {};
+        this._once = []
     },
 
+    /**
+     * 注册事件
+     * @param {*} name 事件名称
+     * @param {*} cb 事件回调函数
+     * @param {*} self 注册的脚本对象
+     */
     on (name, cb, self) {
         // Com.info('join event->', name)
         if (! this._event[name]) this._event[name] = {};
@@ -29,7 +37,15 @@ var CusEvent = cc.Class({
         this._event[name]["target"] = self;
     },
 
-    once (name, cb) {
+    /**
+     * 注册单次事件
+     * @param {*} name 事件名称
+     * @param {*} cb 事件回调函数
+     * @param {*} self 注册的脚本对象
+     */
+    once (name, cb, self) {
+        this.on(name, cb, self)
+        this._once.push(name)
     },
 
     emit (name, data) {
@@ -40,6 +56,10 @@ var CusEvent = cc.Class({
                     Com.info('push ->', name);
                     this._event[name]["cb"][i](data);
                 }
+            }
+            //如果是单次事件，则触发后立即移除
+            if (this._once.indexOf(name) >= 0) {
+                this.un(name)
             }
         } else {
             console.warn("不存在该key订阅->", name);
@@ -56,4 +76,4 @@ var CusEvent = cc.Class({
     },
 });
 
-// window['Event'] = CusEvent.getInstance();
+window['CusEvent'] = CusEvent

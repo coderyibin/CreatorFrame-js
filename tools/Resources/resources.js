@@ -4,53 +4,17 @@ var path = require('path');
 var async = require('async');
 var walk = require('walk')
 
-
+//写入的路径
+var wpath = path.resolve(__dirname, '../../assets/resources/')
 //解析需要遍历的文件夹，我这以E盘根目录为例
 var fpath = path.resolve(__dirname, '../../assets/resources/')
 console.log('cus run path:', fpath)
-var filePath = fpath//path.resolve(__dirname);
+var filePath = fpath
 var dataFile = {}
-
-// //调用文件遍历方法
-// fileDisplay(filePath);
-
-// /**
-//  * 文件遍历方法
-//  * @param filePath 需要遍历的文件路径
-//  */
-// function fileDisplay(filePath){
-//     //根据文件路径读取文件，返回文件列表
-//     fs.readdir(filePath,function(err,files){
-//         if(err){
-//             console.warn(err)
-//         }else{
-//             //遍历读取到的文件列表
-//             files.forEach(function(filename){
-//                 //获取当前文件的绝对路径
-//                 var filedir = path.join(filePath,filename);
-//                 //根据文件路径获取文件信息，返回一个fs.Stats对象
-//                 fs.stat(filedir,function(eror,stats){
-//                     if(eror){
-//                         console.warn('获取文件stats失败');
-//                     }else{
-//                         if (filename.indexOf('.meta') < 0 && filename.indexOf('resources.json') < 0 &&
-//                         filename.indexOf('i18n') < 0) {
-//                             var isFile = stats.isFile();//是文件
-//                             var isDir = stats.isDirectory();//是文件夹
-//                             if(isFile){
-//                                 console.log(filedir);
-//                                 classify(filedir)
-//                             }
-//                             if(isDir){
-//                                 fileDisplay(filedir);//递归，如果是文件夹，就继续遍历该文件夹下面的文件
-//                             }
-//                         }
-//                     }
-//                 })
-//             });
-//         }
-//     });
-// }
+dataFile['config'] = []
+dataFile['mp3'] = []
+dataFile['common'] = []
+dataFile['tmx'] = []
 
 var files = [],dirs = []
 getFileList(filePath)
@@ -91,6 +55,8 @@ function classify (filedir) {
         isJson(filedir.replace('.json', ''))
     } else if (filedir.indexOf('.png') >= 0 || filedir.indexOf('.jpg') >= 0 || filedir.indexOf('.jpeg') >= 0) {
         isImage(filedir.replace(/(.png|.jpg|jpeg)/, ''))
+    } else if (filedir.indexOf('.tmx') >= 0) {
+        isTmx(filedir.replace(/(.tmx)/, ''))
     }
     // console.log(JSON.stringify(dataFile))
 }
@@ -122,12 +88,24 @@ function isPrefab (filedir) {
     filedir = filedir.replace(/\\/,"/")
     dataFile['common'].push(filedir)
 }
+function isTmx (filedir) {
+    if (! dataFile['tmx']) {
+        dataFile['tmx'] = []
+    }
+    filedir = filedir.replace(/\\/,"/")
+    dataFile['tmx'].push(filedir)
+}
 
 function writeFile (str) {   
-    var p = "resources.json";
+    console.log('正在写入资源配置······')
+    console.log('\r')
+    var p = wpath + '\\' + "resources.json";
     //异步方法
     fs.writeFile(p, str, function(err){
         if(err) console.log('写文件操作失败--', p);
         else console.log('写文件操作成功--', p);
+
+        console.log('写入资源配置结束······')
+        console.log('\r')     
     });
 }

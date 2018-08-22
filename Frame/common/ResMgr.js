@@ -25,7 +25,7 @@ var Res = cc.Class({
      * @returns 配置数据
      */
     GetConfig (file='Config') {
-        return this.getGlobal()[file]
+        return this.getGlobal()[file] || null
     }, 
     /**
      * 兼容旧项目
@@ -79,25 +79,28 @@ var Res = cc.Class({
     },
 
     _loadRes (file, cb, target) {
-        if (file.indexOf('atlas_') > 0) cc.loader.loadRes(file, cc.SpriteAtlas, (err, res) => {//合图的读取方式
-            if (err) {
-                cc.warn("资源读取出错", err);
-                return;
-            }
-            cb(res, target);
-        });
-        else cc.loader.loadRes(file, (err, res) => {//res 图片的话为texture2d对象
-            if (err) {
-                cc.warn("资源读取出错", err);
-                return;
-            }
-            if (res instanceof cc.Texture2D) {
-                let frame = new cc.SpriteFrame();
-                frame.setTexture(res);
-                res = frame;
-            }
-            cb(res, target);
-        });
+        if (file.indexOf('atlas_') >= 0) {
+                cc.loader.loadRes(file, cc.SpriteAtlas, (err, res) => {//合图的读取方式
+                if (err) {
+                    cc.warn("合图资源读取出错", err);
+                    return;
+                }
+                cb(res, target);
+            });
+        } else {
+            cc.loader.loadRes(file, (err, res) => {//res 图片的话为texture2d对象
+                if (err) {
+                    cc.warn("其他资源读取出错", err);
+                    return;
+                }
+                if (res instanceof cc.Texture2D) {
+                    let frame = new cc.SpriteFrame();
+                    frame.setTexture(res);
+                    res = frame;
+                }
+                cb(res, target);
+            });
+        }
     },
 
     loadRes (fileName, cb) {
@@ -118,7 +121,7 @@ var Res = cc.Class({
         // }
         if (g_Arr[file]) {
             let res = g_Arr[file]
-            return res instanceof cc.Prefab ? cc.instantiate(res) : res;
+            return res instanceof cc.Prefab ? Tools.Clone(res) : res;
         }
         // let sName = cc.director.getScene().name;
         // let arr = RES.Res[sName];
@@ -131,6 +134,11 @@ var Res = cc.Class({
         cc.warn("未找到该资源", file);
         return null;
     },
+
+    /**
+     * 获取资源-新版接口
+     * @param {*} file 资源名称 
+     */
     Get (file) {
         return this.GetRes(file)
     },

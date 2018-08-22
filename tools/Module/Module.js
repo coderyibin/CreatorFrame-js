@@ -31,7 +31,7 @@ var scene = "var BaseScene = require(\"BaseScene\")\r" +
 "           //这里可以更改父类属性初始化的值\r" +
 "       },\r\r"+
 "       OnInitValue () {\r"+ 
-"           this.registerEvent()\r"+ 
+"           this.registerEvent(\"%s\")\r"+ 
 "       },\r\r"+
 "       OnInitUi () {\r\r"+
 "       },\r\r"+
@@ -51,6 +51,7 @@ var unit = "var BaseUnit = require(\"BaseUnit\")\r" +
 "    _initValue () {\r" +
 "    },\r\r" +
 "    _initUI () {\r" +
+"       this._super()\r"+
 "    },\r\r" +
 "\r" +
 "})\r";
@@ -74,9 +75,45 @@ var loading = '' +
 '    },\n\n' +
 '})\n' 
 
+var ctrl = '' +
+'var BaseCtrl = require(\'BaseCtrl\')\n\n' +
+'var Common = require(\'Common\')\n\n' +
+'var %s = cc.Class({\n\n' +
+'   extends : BaseCtrl,\n\n' +
+'   statics : {\n'+
+'       _fctor : null,\n'+
+'       getInstance : function () {\n'+
+'           if (! this._fctor) {\n'+
+'               this._fctor = new \'%s\'()\n'+
+'           } return this._fctor\n'+
+'       }\n'+
+'   },\n'+
+'   properties : {\n'+
+'   },\n'+
+'   ctor () {\n'+
+'   },\n'+
+'})\n' 
+var tip = ""+
+"cc.Class({\n"+
+"   extends : require('BaseTip'),\n"+
+"   properties : {\n"+
+"   },\n"+
+"   onLoad () {\n"+
+"       this._super()\n"+
+"   },\n"+
+"   _initValue () {\n"+
+"       //this._arrEmit.push(xxx)\n"+
+"       this.registerEvent(this._script)\n"+
+"   },\n"+
+"   _initUi () {\n"+
+"   },\n"+
+"})\n"
+
 module.exports = {
     scene : scene,
     layer : layer,
     unit : unit,
     loading : loading,
+    ctrl : ctrl,
+    tip : tip
 }

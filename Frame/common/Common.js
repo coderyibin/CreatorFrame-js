@@ -6,24 +6,26 @@ var Common = {
     //是否显示fps
     IsShowFPS : false,
     //是否显示碰撞区域
-    IsShowCollision : true,
+    IsShowCollision : false,
     //是否开启多语言
     OpenLanguage : true,
     //是否热更新
-    IsHotUpdate : false,
+    IsHotUpdate : true,
     //默认语言Chinese/Englist
     DefaultLanguage : 'Chinese',
     //本地数据key
     LocalKey : {
         Audio : 'Audio'
     },
-    //场景名称
+    //场景名称--也可以用配置文件来代替
     SceneName : {
         SceneLogin : 'Scene_Login',
         SceneGame : 'Scene_Game',
         SceneMenu : 'Scene_Menu',
 
+        LayerMap : 'Layer_Map',
         LayerMenu : 'Layer_Menu',
+        TipMenu : 'Tip_Menu',
         LayerPause : 'Layer_Pause',
         LayerMap : 'Layer_Map',
         LayerTiledMap : 'Layer_TiledMap',

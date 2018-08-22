@@ -28,6 +28,14 @@ module.exports = {
     Game_Hide : "game_on_hide",//游戏退到后台事件
     Game_Show : "game_on_show",//游戏返回前台事件
 
+    Dragon_Start : "start",//龙骨动画开始播放
+    Dragon_LoopComp : "loopComplete",//龙骨动画循环一次完成
+    Dragon_Complete : "complete",//龙骨动画播放结束
+    Dragon_FadeIn : "fadeIn",//龙骨动画开始淡入
+    Dragon_FadeInComp : "fadeInComplete",//龙骨动画淡入完成
+    Dragon_FadeOut : "fadeOut",//龙骨动画淡出开始
+    Dragon_FadeOutComp : "fadeOutComplete",//龙骨动画淡出完成
+    Dragon_FrameEvent : "frameEvent",//龙骨动画帧事件
+    Dragon_SoundEvent : "soundEvent",//龙骨动画声音事件
 
-    
 }

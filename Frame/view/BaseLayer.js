@@ -10,6 +10,12 @@ var BaseLayer = cc.Class({
         _gameNode : null,
         _event : null,
         _data : null,
+
+        /**如果有tiledmap 地图组件 */
+        _tiledMapComp : null,//地图组件
+        _tiledMapSize : null,//地图大小 像素
+        _tiledSize : null,//地图大小 背景地图
+        /**如果有tiledmap 地图组件 */
     },
 
     onLoad () {
@@ -29,15 +35,15 @@ var BaseLayer = cc.Class({
         this._event = CusEvent.getInstance()
     },
 
-    registerEvent (layerName) {
+    registerEvent () {
         let self = this;
-        Com.info(layerName, 'cur layer event:', self._arrEmit);
+        Com.info(this._script, 'cur layer event:', self._arrEmit);
         for (let i = 0; i < self._arrEmit.length; i ++) {
             let sName = self._arrEmit[i];
             if (self[sName]) {
                 self._emitter.on(self._arrEmit[i], self[sName].bind(this), self);
             } else {
-                Com.warn("未注册事件", sName);
+                Com.warn("未注册事件,请在脚本中实现函数 " + sName + '函数');
             }
         }
     },
@@ -71,12 +77,30 @@ var BaseLayer = cc.Class({
         this._event.emit(emitName, emitData)
     },
 
+    /**
+     * 保留接口
+     * @param {*} data 
+     */
     Set (data) {
         this._data = data
+        // this._initTiledMap()        
     },
 
-    remove () {
+    // /**
+    //  * 初始化地图的数据
+    //  */
+    // _initTiledMap () {
+    //     if (this._data.hasOwnProperty('tiledMap')) {
+    //         let comp = this.node.addComponent(cc.TiledMap)
+    //         comp.tmxAsset = RES.Get(data.tiledMap)
+    //         this._tiledMapComp = comp
+    //         this._tiledMapSize = comp.getMapSize()
+    //         this._tiledSize = comp.getTileSize()
+    //     }
+    // },
+    
+    Remove (clean=false) {
         this.Emit('onClearLayer', this._script)
-        this.node.removeFromParent()
-    }, Remove () {this.remove()}
+        this._super(clean)
+    },
 })
