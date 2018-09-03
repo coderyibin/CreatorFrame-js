@@ -59,7 +59,7 @@ var BaseMsg = cc.Class({
         if (node) {
             node.scaleX = 0.1
             node.scaleY = 0.1
-            let action = new cc.scaleTo(0.1, 1)
+            let action = cc.scaleTo(0.1, 1)
             node.runAction(action)
         }
     },

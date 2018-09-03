@@ -300,7 +300,8 @@ var UI = cc.Class({
                 if (node.getComponent('LocalizedLabel')) {
                     node.getComponent('LocalizedLabel').dataID = value
                 } else {
-                    node.addComponent('LocalizedLabel').dataID = value
+                    let comp = node.addComponent('LocalizedLabel')
+                    comp.dataID = value
                 }
             } else {
                 node.getComponent(cc.Label).string = value
@@ -573,20 +574,48 @@ var UI = cc.Class({
     },
 
     /**
-     * 更改精灵帧
-     * @param 精灵的图片名称
+     * 更改精灵帧-旧接口
+     * @param name 节点名称
+     * @param image 精灵的图片名称
+     * @param atals 精灵合图名称
      */
-    ChangeSpriteFrame (name, image) {
+    ChangeSpriteFrame (name, image, atals=null) {
         let node = this.getNode(name)
         if (node) {
             let comp = node.getComponent(cc.Sprite)
             if (comp) {
+                //如果是合图
+                if (atals) {
+                    let res = RES.GetAtlas(image, atals)
+                    if (res) {
+                        comp.spriteFrame = res
+                        return
+                    } Com.error('没有合图加载图片纹理:'+ atals + '图片名称：' + image)
+                    return
+                }
                 let res = RES.Get(image)
                 if (res) {
                     comp.spriteFrame = image
                     return
-                } Com.error('没有加载图片纹理:', image)
-            } Com.error('该节点没有精灵组件:', name)
+                } Com.error('没有加载图片纹理:'+ image)
+            } Com.error('该节点没有精灵组件:'+ name)
+        }
+    },
+
+    /**
+     * 改变精灵spriteFrame-新接口
+     * 当前接口会优先寻找image表中匹配的数据,如果没有,则在全局资源中寻找匹配数据
+     * 
+     * @param node 要装载的精灵节点或者节点名称
+     * @param image 图片名称
+     */
+    SetSpriteFrame (node, image) {
+        let imageCfg = RES.GetConfig('image')
+        let res = imageCfg[image]
+        if (res.Atlas) {//合图中寻找
+            this.ChangeSpriteFrame(node, res.Name, res.AtlasName)
+        } else {
+            this.ChangeSpriteFrame(node, res.Name)
         }
     },
 

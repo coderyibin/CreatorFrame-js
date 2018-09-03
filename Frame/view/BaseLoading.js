@@ -18,6 +18,7 @@ var BaseLoading = cc.Class({
         },
         _hotUpdateComp : null,//热更新弹窗脚本
         _gameScene : '',
+        _gameCtrl : null,
         _storagePath : '',
         _checkListener : null,
         _updating : null,
@@ -29,6 +30,7 @@ var BaseLoading = cc.Class({
 
     onLoad () {
         this._super()
+        // this.manifestUrl = null
         //设置是否显示帧率
         cc.director.setDisplayStats(Common.IsShowFPS);
         this._gameScene = Common.SceneName.SceneLogin
@@ -102,6 +104,12 @@ var BaseLoading = cc.Class({
     },
     //检查更新
     _fCheckUpdate () {
+        let self = this
+        //版本热更新文件加载方式修改为请求文件加载
+        // RES.loadJson('project', function (res) {
+        //     self.manifestUrl = res
+        //     self._fCheck()
+        // })
     },
 
     /**
@@ -110,6 +118,7 @@ var BaseLoading = cc.Class({
     _fCheck () {
         // Hot update is only available in Native build
         if (! this._isNative()) {
+            Com.info('不是原生')
             return;
         }
         this._storagePath = ((jsb.fileUtils ? jsb.fileUtils.getWritablePath() : '/') + 'blackjack-remote-asset');

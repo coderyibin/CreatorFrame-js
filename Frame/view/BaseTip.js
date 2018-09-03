@@ -1,7 +1,7 @@
-var CusEvent = require('CusEvent')
+var BaseLayer = require('../../Frame/view/BaseLayer')
 
 var BaseMsg = cc.Class({
-    extends : require('BaseLayer'),
+    extends : BaseLayer,
 
     properties : {
     },

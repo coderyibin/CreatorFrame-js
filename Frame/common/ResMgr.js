@@ -136,6 +136,21 @@ var Res = cc.Class({
     },
 
     /**
+     * 获取图集资源
+     * @param name 资源名称
+     * @param atals 所在图集名称
+     * @return frame 返回一个 frame 对象
+     */
+    GetAtlas (name, atals) {
+        let res = this.GetRes(atals)
+        if (! res) {
+            return null
+        }
+        let frame = res.getSpriteFrame(name)
+        return frame
+    },
+
+    /**
      * 获取资源-新版接口
      * @param {*} file 资源名称 
      */

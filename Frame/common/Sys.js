@@ -38,4 +38,45 @@ module.exports = {
     Dragon_FrameEvent : "frameEvent",//龙骨动画帧事件
     Dragon_SoundEvent : "soundEvent",//龙骨动画声音事件
 
+    Layout_None : cc.Layout.Type.NONE,//取消布局
+    Layout_Horizonal : cc.Layout.Type.HORIZONTAL,//水平布局
+    Layout_Vertical : cc.Layout.Type.VERTICAL,//垂直布局
+    Layout_Grid : cc.Layout.Type.GRID,//网格布局
+    
+    //布局轴向-垂直-仅限于网格布局使用
+    Layout_AxisDirection_HORIZONTAL : cc.Layout.AxisDirection.HORIZONTAL,
+    //布局轴向-水平-仅限于网格布局使用
+    Layout_AxisDirection_VERTICAL : cc.Layout.AxisDirection.VERTICAL,
+
+    /**********************新版接口******************************* */
+    //Layout
+    Layout : {
+        //布局模式
+        Type : {
+            //取消布局
+            None : cc.Layout.Type.NONE,
+            //水平布局
+            Horizonal : cc.Layout.Type.HORIZONTAL,
+            //垂直布局
+            Vertical : cc.Layout.Type.VERTICAL,
+            //网格布局
+            Grid : cc.Layout.Type.GRID,
+        },
+        //起始轴方向
+        AxisDirection : {
+            //布局轴向-垂直-仅限于网格布局使用
+            Horizonal : cc.Layout.AxisDirection.HORIZONTAL,
+            //布局轴向-水平-仅限于网格布局使用
+            Vertical : cc.Layout.AxisDirection.VERTICAL,
+        },
+        //缩放模式
+        ResizeMode : {
+            //取消布局
+            None : cc.Layout.ResizeMode.NONE,
+            //容器的大小会根据子节点的大小自动缩放。
+            Container : cc.Layout.ResizeMode.CONTAINER,
+            //子节点的大小会随着容器的大小自动缩放。
+            Children : cc.Layout.ResizeMode.CHILDREN,
+        }
+    }
 }

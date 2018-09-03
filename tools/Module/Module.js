@@ -77,22 +77,19 @@ var loading = '' +
 
 var ctrl = '' +
 'var BaseCtrl = require(\'BaseCtrl\')\n\n' +
-'var Common = require(\'Common\')\n\n' +
-'var %s = cc.Class({\n\n' +
-'   extends : BaseCtrl,\n\n' +
-'   statics : {\n'+
-'       _fctor : null,\n'+
-'       getInstance : function () {\n'+
-'           if (! this._fctor) {\n'+
-'               this._fctor = new \'%s\'()\n'+
-'           } return this._fctor\n'+
-'       }\n'+
-'   },\n'+
-'   properties : {\n'+
-'   },\n'+
-'   ctor () {\n'+
-'   },\n'+
-'})\n' 
+'class %s extends BaseCtrl {\n\n'+
+'   constructor () {\n'+
+'       super(\'%s\')\n'+
+'   }\n'+
+'   static _fctor\n'+
+'   static getInstance () {\n'+
+'       if (! this._fctor) {\n'+
+'           this._fctor = new %s()\n'+
+'       } return this._fctor\n'+
+'   }\n'+
+'}\n\n'+
+'module.exports = %s\n'+
+'\n'
 var tip = ""+
 "cc.Class({\n"+
 "   extends : require('BaseTip'),\n"+
@@ -109,11 +106,23 @@ var tip = ""+
 "   },\n"+
 "})\n"
 
+var data = ""+
+"var BaseData = require(\'BaseData\')\n\n"+
+'class %s extends BaseData {\n'+
+'   constructor () {\n'+
+'       super()\n'+
+'   }\n'+
+'}\n'+
+"\n"+
+'module.exports = %s\n'+
+""
+
 module.exports = {
     scene : scene,
     layer : layer,
     unit : unit,
     loading : loading,
     ctrl : ctrl,
+    data : data,
     tip : tip
 }

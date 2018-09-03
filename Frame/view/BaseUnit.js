@@ -1,8 +1,9 @@
-var Sys = require('Sys')
+var Sys = require('../../Frame/common/Sys')
 var CusEvent = require('CusEvent')
+var UIMgr = require('../../Frame/view/UIMgr')
 
 var BaseUnit = cc.Class({
-    extends : require('UIMgr'),
+    extends : UIMgr,
 
     statics : {
     },
@@ -40,6 +41,9 @@ var BaseUnit = cc.Class({
 
     _initUnit() {
         this._event = CusEvent.getInstance()
+        
+        //注册自己
+        this._registerSelf()
     },
 
     start () {
@@ -80,6 +84,15 @@ var BaseUnit = cc.Class({
      */
     GetIndex () {
         return this._index
+    },
+
+    /**
+     * 发送订阅
+     * @param name 订阅名称
+     * @param data 参数
+     */
+    Emit (name, data) {
+        this._event.emit(name, data)
     },
 
     /**
@@ -178,6 +191,14 @@ var BaseUnit = cc.Class({
             //碰撞组件自己 别人的碰撞组建 自己的节点 别人的节点
             this['onCollisionEnd'](self, other, self.node, other.node)
         }
+    },
+
+    /**
+     * 注册本身节点点击事件
+     */
+    _registerSelf () {
+        let name = '_tap_' + this._script
+        if (this[name]) this.node.on(Sys.Touch_End, this[name], this)
     },
 
     Set (index, data) {

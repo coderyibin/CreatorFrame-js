@@ -1,5 +1,4 @@
-var BaseComponent = require("BaseComponent")
-var CusEvent = require('CusEvent')
+var BaseComponent = require("../../Frame/view/BaseComponent")
 
 var BaseLayer = cc.Class({
     extends : BaseComponent,
@@ -8,7 +7,6 @@ var BaseLayer = cc.Class({
         _arrEmit : null,
         _isShield : null,
         _gameNode : null,
-        _event : null,
         _data : null,
 
         /**如果有tiledmap 地图组件 */
@@ -32,7 +30,6 @@ var BaseLayer = cc.Class({
         this._isShield = true
         this._arrEmit = []
         this._gameNode = this.getCanvas()
-        this._event = CusEvent.getInstance()
     },
 
     registerEvent () {
@@ -55,13 +52,9 @@ var BaseLayer = cc.Class({
         this._initUi()
     },
 
-    _initValue () {
+    _initValue () { },
 
-    },
-
-    _initUi () {
-
-    },
+    _initUi () { },
 
     _addShield () {
         let size = cc.director.getWinSize();
@@ -71,6 +64,25 @@ var BaseLayer = cc.Class({
         node.height = size.height;
         this.node.addChild(node);
         node.zIndex = -1;
+    },
+
+    /**
+     * 设置瓦片地图组件
+     * @param name 瓦片地图名称
+     */
+    SetTiledMap (name) {
+        let map = this.node.getComponent(cc.TiledMap)
+        if (! map) {
+            map = this.node.addComponent(cc.TiledMap)
+        }
+        //瓦片地图组件
+        this._tiledMapComp = map
+        //地图大小
+        this._tiledMapSize = map.getMapSize()
+        //获取地图背景中 tile 元素的大小。
+        this._tiledSize = map.getTileSize()
+        //地图加载结束后的通知
+        this.Emit('onTiledMapOnEnter')
     },
 
     Emit (emitName, emitData) {

@@ -1,17 +1,14 @@
-var Global = require('Global')
+var Global = require('../../Frame/common/Global')
+var Common = require('../common/Common')
 
-var BaseData = cc.Class({
-    // extends : cc.Class,
+module.exports = class BaseData {
+    _global = null
 
-    properties : {
-        _global : null,
-    },
-
-    ctor () {
+    constructor () {
         this._global = Global
-    },
+    }
 
-     /**
+    /**
      * 获取数据
      * 数据模块所有的请求都来调用这个函数
      * 也可以直接调用原本函数，这里只是做了数据的统一克隆
@@ -31,7 +28,7 @@ var BaseData = cc.Class({
         } else {
             Com.error('当前数据类没有成员函数-> '+ funcName + ' 请注册')
         }
-    },
+    }
 
     /**
      * 设置模块数据
@@ -46,7 +43,7 @@ var BaseData = cc.Class({
         } else {
             Com.error('当前数据类没有成员函数-> '+ funcName + ' 请注册')
         }
-    },
+    }
 
     setAccount (info) {
         if (! info.account || ! info.password) {
@@ -54,19 +51,20 @@ var BaseData = cc.Class({
             return
         }
         this.setLocalData('account', info)
-    },
+    }
 
     /**
      * 保存普通数据
      */
     SetLocalNormal (key, data) {
+        if (! Common.LocalKey[key]) Common.LocalKey[key] = key
         cc.sys.localStorage.setItem(key, data)
-    },
+    }
 
     GetLocalNormal (key) {
         let data = cc.sys.localStorage.getItem(key)
         return data
-    },
+    }
 
     /**
      * 保存游戏数据-一般保存json格式对象
@@ -74,10 +72,40 @@ var BaseData = cc.Class({
     setLocalData (key, data) {
         data = Global.JSONToStr(data)
         cc.sys.localStorage.setItem(key, data)
-    },
+    }
 
     getLocalData (key) {
         let d = cc.sys.localStorage.getItem(key) || Global.StrToJSON({})
         return Global.StrToJSON(d)
-    },
-})
+    }
+
+    /**
+     * 克隆数据
+     */
+    _clone (data) {
+        return Global.CloneJSON(data)
+    }
+
+    /**
+     * 数据转换-json转字符串
+     */
+    _jsonToStr (json) {
+        return this._global.JSONToStr(json)
+    }
+
+    /**
+     * 数据转换-字符串转json对象
+     */
+    _strToJson (str) {
+        return this._global.StrToJSON(str)
+    }
+
+    /**
+     * 清理本地数据Key
+     */
+    ClearLocalKey () {
+        for (let i in Common.LocalKey) {
+            cc.sys.localStorage.removeItem(Common.LocalKey[i])
+        }
+    }
+}

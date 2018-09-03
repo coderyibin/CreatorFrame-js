@@ -1,4 +1,4 @@
-var Global = {
+module.exports = {
     /**
      * 数组打乱
      * @param arr 要打乱的数组
@@ -93,7 +93,7 @@ var Global = {
     },
     //兼容
     CloneJson (jsonData) {
-        return Global.CloneJSON(jsonData)
+        return JSON.parse(JSON.stringify(jsonData));
     },
     //克隆数组
     CloneArray (arr) {
@@ -243,7 +243,15 @@ var Global = {
         let x = tileCoord.x * tileSize.width + (tileCoord.y % 2) * tileSize.width / 2;
         let y = (mapSize.height - (tileCoord.y + 1)) * tileSize.height / 2 - tileSize.height / 2;
         return cc.v2(x, y);
-    }
+    },
+
+    /**
+     * 保留小数
+     * @param number 数字
+     * @param count 小数位数
+     */
+    GetDecimals (number, count) {
+        return number.toFixed(count)
+    },
 
 }
-module.exports = Global

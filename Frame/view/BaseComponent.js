@@ -1,7 +1,8 @@
-var CusEvent = require("CusEvent")
+var CusEvent = require("../../Frame/ctrl/CusEvent")
 var Common = require("Common")
 var Global = require("Global")
-var UI = require('UIMgr')
+var Sys = require('../common/Sys')
+var UI = require('./UIMgr')
 
 var BaseComponent = cc.Class({
     extends : UI,
@@ -13,6 +14,7 @@ var BaseComponent = cc.Class({
         _list_ :null,
         _unit_ : null,
         _listData : null,
+        _event : null,
     },
 
     onLoad () {
@@ -50,7 +52,10 @@ var BaseComponent = cc.Class({
      * 初始化变量
      */
     __initValue () {
+        //兼容项目
         this._emitter = CusEvent.getInstance()
+        //新接口
+        this._event = this._emitter
         this._hasLayer = {}
     },
 
@@ -81,27 +86,55 @@ var BaseComponent = cc.Class({
         return node
     },ShowLayer (layerName, parent, only=false) {return this.showLayer(layerName, parent, only)},
 
-    //刷新列表*列表名称
-    refreshList (listName) {
-        let data = this._listData
-        let index = 0
-        for (let i in data) {
-            this._setList(listName, data[i], index)
-            index ++
-        }
+    /**
+     * 设置滚动列表数据
+     */
+    SetListData (data) {
+        this._listData = data
     },
-    //设置列表数据
-    _setList (name, data, index) {
-        let unit = 'Unit_' + name
-        let list = '_list_' + name
-        let node = RES.Get(unit)
+
+    /**
+     * 刷新列表
+     * @param {*} listName 列表名称 ScrollView 节点名
+     * @param {*} unitName 单元名称
+     */
+    refreshList (listName, unitName) {
+        let node = this.GetNode(listName)
         if (node) {
-            let comp = node.getComponent(unit)
-            if (! comp) {
-                comp = node.addComponent(unit)
+            let scroll = this.GetNodeComp(node, 'cc.ScrollView')
+            if (scroll) {
+                let data = this._listData
+                let parent = scroll.content
+                let layout = parent.getComponent(cc.Layout)
+                let left, bottom, top, right, width, spacingX
+                width = parent.width
+                if (layout) {
+                    left = layout.paddingLeft
+                    bottom = layout.paddingBottom
+                    right = layout.paddingRight
+                    top = layout.paddingTop
+                    spacingX = layout.spacingX
+                }
+                let laywidth = left + right
+                this.ClearList(listName)
+                for (let i = 0; i < data.length; i ++) {
+                    let node = this.ShowUnit(unitName, parent, i, data[i])
+                    //自适配计算
+                    if (layout.type == Sys.Layout.Type.Grid) {//网格布局
+                        if (layout.startAxis == Sys.Layout.AxisDirection.Horizonal) {
+                            let w = node.width
+                            if (i == 0) {
+                                parent.height += node.height * 2
+                            }
+                            laywidth += w + spacingX
+                            if (laywidth > parent.width) {
+                                parent.height += node.height
+                                laywidth = left + right
+                            }
+                        }
+                    }
+                }
             }
-            comp.Set(index, data)
-            this.getNode(list).addChild(node)
         }
     },
     
@@ -110,6 +143,7 @@ var BaseComponent = cc.Class({
         let node = this.getNode(name)
         let scroll = node.getComponent(cc.ScrollView)
         scroll.content.removeAllChildren()
+        scroll.content.height = 0
     },
 
     /**

@@ -53,7 +53,7 @@ var CusEvent = cc.Class({
             for (let i in this._event[name]["cb"]) {
                 if (this._event[name]["cb"][i]) {
                     let tar = this._event[name]["target"];
-                    Com.info('push ->', name);
+                    Com.info('push ->' + name, 'param=', data);
                     this._event[name]["cb"][i](data);
                 }
             }

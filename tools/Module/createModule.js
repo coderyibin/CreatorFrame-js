@@ -32,7 +32,8 @@ rl.question('Please input js name: (eg:scene: input : Scene_Name or layer: input
     else if (fileName.indexOf('Loading') >= 0) writeFile(fileName, modules.loading)
     else if (fileName.indexOf('Scene') >= 0) writeFile(fileName, modules.scene)
     else if (fileName.indexOf('Unit') >= 0) writeFile(fileName, modules.unit)
-    else if (fileName.indexOf('Ctrl') >= 0) writeFile(fileName, StrReplace(modules.ctrl, fileName))
+    else if (fileName.indexOf('Ctrl') >= 0) writeFile(fileName, StrReplace(modules.ctrl, fileName, fileName, fileName, fileName))
+    else if (fileName.indexOf('Data') >= 0) writeFile(fileName, StrReplace(modules.data, fileName, fileName, fileName))
     else if (fileName.indexOf('Tip') >= 0) writeFile(fileName, modules.tip)
     else console.log('input error, so create file faild!')
     rl.close();

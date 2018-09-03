@@ -1,17 +1,13 @@
-var BaseData = require('BaseData')
-var Common = require('Common')
+var BaseData = require('../module/BaseData')
+var Common = require('../common/Common')
 
-var GameData = cc.Class({
-    extends : BaseData,
+class GameData extends BaseData {
 
-    properties : {
-        _audio : null,
+    constructor () {
+        super()
 
-    },
-
-    ctor () {
         this._audio = null
-    },
+    }
 
     /**
      * 设置声音
@@ -20,7 +16,7 @@ var GameData = cc.Class({
     SetAudio (open) {
         this._audio = open
         this.SetLocalNormal(Common.LocalKey.Audio, open)
-    },
+    }
 
     /**
      * 获取游戏声音状态
@@ -37,6 +33,11 @@ var GameData = cc.Class({
                 }
             }
         } return this._audio
-    },
+    }
 
-})
+    Clear () {
+        this.ClearLocalKey()
+    }
+}
+
+module.exports = GameData
