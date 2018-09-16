@@ -52,6 +52,8 @@ function praseExcel(list, name)
                         width : parseInt(temp[0]),
                         height : parseInt(temp[1])
                     }
+                } else if (type == 'json') {
+                    _data[keyArray[k]] = JSON.parse(curData[k])
                 } else {
                     throw new Error('表格有误->'+ name+ ':'+ j);
                 }
