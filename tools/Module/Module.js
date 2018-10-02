@@ -117,12 +117,29 @@ var data = ""+
 'module.exports = %s\n'+
 ""
 
+var msg = ""+
+'var Msg = require(\'../../../Frame/view/BaseMsg\')\n'+
+'cc.Class({\n'+
+'    extends : Msg,\n'+
+'    properties : {\n'+
+'    },\n'+
+'    onLoad () {\n'+
+'        this._super()\n'+
+'    },\n'+
+'    _initValue () {\n'+
+'    },\n'+
+'    _initUi () { \n'+
+'    },\n'+
+'})'+
+""
+
 module.exports = {
     scene : scene,
     layer : layer,
     unit : unit,
     loading : loading,
-    ctrl : ctrl,
+    ctrl : data + ctrl,
     data : data,
+    msg : msg,
     tip : tip
 }
