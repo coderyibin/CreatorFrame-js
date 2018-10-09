@@ -73,6 +73,13 @@ var loading = '' +
 '        s *= 100\n' +
 '        this.setProgressValue(\'progress\', s) \n' +
 '    },\n\n' +
+'   _fCheckUpdate () {\n'+
+'       this._fCheck()\n'+
+'   }\n'+
+'   showUpdateTip () {\n'+
+'       this._super()\n'+
+'       this.AddChild(this.HotUpdate)\n'+
+'   }\n'+
 '})\n' 
 
 var ctrl = '' +
