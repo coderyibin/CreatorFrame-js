@@ -99,7 +99,7 @@ function isTmx (filedir) {
 function writeFile (str) {   
     console.log('正在写入资源配置······')
     console.log('\r')
-    var p = wpath + '\\' + "resources.json";
+    var p = wpath + '/' + "resources.json";
     //异步方法
     fs.writeFile(p, str, function(err){
         if(err) console.log('写文件操作失败--', p);

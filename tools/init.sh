@@ -1,0 +1,1 @@
+cd Init && node init.js

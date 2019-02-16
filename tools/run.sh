@@ -1,7 +1,1 @@
-
-node Config/Config.js;
-node Data/Data.js;
-node Resources/resources.js;
-
-cd LanguageJS
-sh run.sh
+cd Config && node Config.js && cd ../ && cd Data && node Data.js && cd ../ && cd Resources && node resources.js && cd ../ && cd LanguageJS && node jcLanguage.js 

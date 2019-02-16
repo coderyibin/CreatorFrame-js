@@ -1,0 +1,2 @@
+cd Init
+init.cmd

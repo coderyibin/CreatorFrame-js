@@ -75,7 +75,7 @@ var loading = '' +
 '    },\n\n' +
 '   _fCheckUpdate () {\n'+
 '       this._fCheck()\n'+
-'   }\n'+
+'   },\n\n'+
 '   showUpdateTip () {\n'+
 '       this._super()\n'+
 '       this.AddChild(this.HotUpdate)\n'+

@@ -1,15 +1,4 @@
 [
-"hero",
-"skill",
-"monster",
-"item",
-"exp",
-"image",
-"mapbox",
-"uplvproperty",
-"languageconfig",
-"guide",
-"touchguide",
-"store",
-"map"
+    "language",
+    "image"
 ]

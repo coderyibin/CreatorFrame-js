@@ -13,7 +13,7 @@ const rl = readline.createInterface({
 var fileName = ''
 
 function writeFile (filestr, str) {   
-    var p = wpath + '\\' + filestr + ".js";
+    var p = wpath + '/' + filestr + ".js";
     //异步方法
     fs.writeFile(p, str, function(err){
         if(err) console.log(filestr, '写文件操作失败--', p);
