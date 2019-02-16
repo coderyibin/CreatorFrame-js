@@ -1,6 +1,8 @@
-var BaseScene = require('BaseScene')
+var BaseScene = require('./BaseScene')
 var Common = require('Common')
-var GameCtrl = require('GameCtrl')
+var GameCtrl = require('../ctrl/GameCtrl')
+var Sys = require('../common/Sys')
+var Wecaht = require('../Platform/WechatCtrl')
 
 var BaseLoading = cc.Class({
     extends : BaseScene,
@@ -8,7 +10,7 @@ var BaseLoading = cc.Class({
     properties : {
         manifestUrl : {
             default : null,
-            tooltip : "本地的热更新配置文件",
+            tooltip : "本地的热更新配置文件project.mainfest",
             url : cc.RawAsset
         },
         HotUpdate : {
@@ -16,7 +18,19 @@ var BaseLoading = cc.Class({
             tooltip : "热更新资源弹窗",
             type : cc.Prefab
         },
+        Newest : {
+            default : null,
+            tooltip : "最新版本提示弹窗",
+            type : cc.Prefab
+        },
+        UpdateFail : {
+            default : null,
+            tooltip : "更新失败弹窗",
+            type : cc.Prefab
+        },
         _hotUpdateComp : null,//热更新弹窗脚本
+        _updateFailComp : null,//更新失败弹窗脚本
+        _newestComp : null,//最新弹窗脚本
         _gameScene : '',
         _gameCtrl : null,
         _storagePath : '',
@@ -29,11 +43,14 @@ var BaseLoading = cc.Class({
     },
 
     onLoad () {
+        GameCtrl.getInstance().InitGameBeforeConfig()
+        
         this._super()
         // this.manifestUrl = null
         //设置是否显示帧率
         cc.director.setDisplayStats(Common.IsShowFPS);
         this._gameScene = Common.SceneName.SceneLogin
+        this.HideNode('Loading')
         
         //初始化热更新弹窗，如果有的话
         if (this.HotUpdate) {
@@ -41,14 +58,31 @@ var BaseLoading = cc.Class({
             this.HotUpdate = hot
             this._hotUpdateComp = hot.getComponent(hot.name)
         }
+        //初始化最新版本弹窗，如果有的话
+        if (this.Newest) {
+            let newest = cc.instantiate(this.Newest)
+            this.Newest = newest
+            this._newestComp = newest.getComponent(newest.name)
+        }
+        //初始化更新失败弹窗，如果有的话
+        if (this.UpdateFail) {
+            let fail = cc.instantiate(this.UpdateFail)
+            this.UpdateFail = fail
+            this._updateFailComp = fail.getComponent(fail.name)
+        }
 
         this.OnInit()
-        if (! this._isNative()) {//直接进行网页h5
+        if (Sys.IsWeChatGame) {
+            Com.info('进行微信小游戏')
+            Wecaht.getInstance().WechatGameLogin(this._loadResCfgJson.bind(this))
+
+        } else if (! this._isNative()) {//直接进行网页h5
 
             this._fLoadRes();  
 
         } else {//检查更新
-            if (Common.IsHotUpdate) this._fCheckUpdate();
+            Com.info('热更新开启情况：' + Common.IsHotUpdate)
+            if (Common.IsHotUpdate) this._fCheckUpdate()
             else this._loadResCfgJson()
         }
     },
@@ -66,9 +100,17 @@ var BaseLoading = cc.Class({
         Com.info('显示热更新弹窗')
     },
 
+    /**
+     * 已是最新版本弹窗
+     */
+    NewestVersion () {
+        Com.info('显示最新版本提示弹窗')
+    },
+
     _loadResCfgJson (cb) {
         let self = this
         Com.info('开始加载资源')
+        this.ShowNode('Loading') 
         RES.loadJson("resources", (res)=>{
             let r = []
             for (let i in res) {
@@ -110,6 +152,13 @@ var BaseLoading = cc.Class({
         //     self.manifestUrl = res
         //     self._fCheck()
         // })
+    },
+
+    /**
+     * 显示更新失败
+     */
+    _showUpdateFail () {
+        Com.info('更新失败')
     },
 
     /**
@@ -211,6 +260,7 @@ var BaseLoading = cc.Class({
                 break;
             case jsb.EventAssetsManager.UPDATE_FAILED:
                 console.log('Update failed. ' + event.getMessage());
+                this._showUpdateFail()
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
                 console.log('Asset update error: ' + event.getAssetId() + ', ' + event.getMessage());
@@ -297,6 +347,7 @@ var BaseLoading = cc.Class({
             this._failCount = 0;
             this._am.update();
             this._updating = true;
+            Com.warn('开始热更新')
         }
     },
 
@@ -314,7 +365,8 @@ var BaseLoading = cc.Class({
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
                 Com.info('开始进入游戏2')
                 console.log("Already up to date with the latest remote version.");
-                this._loadResCfgJson()
+                this.NewestVersion()
+                // this._loadResCfgJson()
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
                 this.showUpdateTip();

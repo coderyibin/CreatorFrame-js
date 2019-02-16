@@ -2,7 +2,7 @@ var Global = require('../../Frame/common/Global')
 var Common = require('../common/Common')
 
 module.exports = class BaseData {
-    _global = null
+    _projectName = 'EndVoidFly'
 
     constructor () {
         this._global = Global
@@ -75,8 +75,9 @@ module.exports = class BaseData {
     }
 
     getLocalData (key) {
-        let d = cc.sys.localStorage.getItem(key) || Global.StrToJSON({})
-        return Global.StrToJSON(d)
+        let d = cc.sys.localStorage.getItem(key)
+        if (d) return this._clone(this._strToJson(d))
+        return null
     }
 
     /**
@@ -84,6 +85,13 @@ module.exports = class BaseData {
      */
     _clone (data) {
         return Global.CloneJSON(data)
+    }
+
+    /**
+     * 克隆数组
+     */
+    _cloneArray (array) {
+        return Global.CloneArray(array)
     }
 
     /**

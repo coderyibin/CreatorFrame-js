@@ -1,6 +1,7 @@
 var CusEvent = require('../ctrl/CusEvent')
 var Common = require('../common/Common')
 var Global = require('../common/Global')
+var Tools = require('../common/Tools')
 
 class BaseCtrl {
 
@@ -8,6 +9,7 @@ class BaseCtrl {
     _common = Common
     _global = Global
     _name = ''
+    _tools = Tools
 
     constructor (script) {
         this._name = script

@@ -1,12 +1,43 @@
 module.exports = {
     /**
+     * 数字格式化，逗号隔开
+     * @param number 数字
+     * @example 10000 => 10,000
+     */
+    NumberGeShi (number) {
+        return (number || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')
+    },
+
+    /**
+     * 判断字符串是否只是数字
+     * @param str 要判断的字符串
+     */
+    StrIsNumber (str) {
+        var reg = /^[0-9]+.?[0-9]*$/
+        if (reg.test(str)) {
+          return true;
+        }
+        return false;
+    },
+
+    /**
      * 数组打乱
      * @param arr 要打乱的数组
      */
     ArrayUpset (arr) {
         Array.prototype.sort.call(arr,function(a,b){ return Math.random()>.5 ? -1 : 1;});
         return arr;
+    }, 
+    
+    /**
+     * 获取数组打乱的结果
+     * @param {*} arr 
+     */
+    GetArrayUpset (arr) {
+        Array.prototype.sort.call(arr,function(a,b){ return Math.random()>.5 ? -1 : 1;});
+        return arr;
     },
+
     /**
      * 数组倒序
      * @param arr 要倒序的数组
@@ -14,18 +45,33 @@ module.exports = {
     ArrayReverse (arr) {
         return arr.reverse()
     },
+
     /**
      * 获取数组最小值
      */
     GetArrayMin (array) {
         return array.sort(function(a,b){return a-b;})[0]
     },
+
     /**
      * 获取数组最大值
      */
     GetArrayMax (array) {
         return array.sort(function(a,b){return b-a;})[0]
     },
+
+    /**
+     * 数组拼接
+     * @param 拼接的数组
+     */
+    GetArrayConcat (...array) {
+        let arr = array[0]
+        for (let i = 1; i < array.length; i ++) {
+            arr = arr.concat(array[i])
+        }
+        return arr
+    },
+
     /**
      * 获取指定范围内的随机数
      * @param 最小值 number
@@ -72,13 +118,23 @@ module.exports = {
         second = second < 10 ? ('0' + second) : second;   
         return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second; 
     },
+    /**
+     * 时间戳转秒
+     * @param time 时间戳
+     */
+    GetTimeToSecond (time) {
+        let seconds = (time % (1000 * 60)) / 1000;
+        return seconds
+    },
     //获取数据组第一条数据
     GetJsonFirst (json) {
         for (let i in json) {
             return json[i]
         }
     },
-    //获取json数据的长度
+    /** 
+     * 获取json数据的长度
+     * */
     GetJsonLength (json) {
         if (! json || ! (json instanceof Object)) return;
         let len = 0;
@@ -113,6 +169,7 @@ module.exports = {
     },
     //字符串转json
     StrToJSON (str) {
+        if (str == '') return {} 
         return JSON.parse(str)
     },
     //字符串替换
@@ -122,11 +179,34 @@ module.exports = {
         }
         return str
     },
+
+    /**
+     * 字符串转数组
+     * @param {*} str 要转换的字符串
+     * @param {*} key 转换的标记
+     * @example Global.StrToArray('1-2', '-')
+     * @example [1, 2]
+     */
+    StrToArray (str, key) {
+        let array = str.split(key)
+        return array
+    },
+
+    /**
+     * 数组转字符串
+     * @param {*} array 要转换的数组 
+     * @param {*} key 转换的标记
+     */
+    ArrayToStr (array, key) {
+        let str = array.join(key)
+        return str
+    },
+
     /**
      * 判断字符串是否包含某些字符
      */
     StringHasStr (str) {
-        if (str.indexOf("*" || "_" || "-" || "/" || "\"") >= 0) {
+        if (str.indexOf("*" || "_" || "-" || "/" || "\"" || " ") >= 0) {
             return true;
         }
         return false;
@@ -157,10 +237,37 @@ module.exports = {
     },
 
     /**
+     * 字符串截取-新接口
+     * @param str 要操作的字符串
+     * @param start 开始截取的位置
+     * @param len 截取的长度
+     */
+    GetSubStr (str, start, len) {
+        return str.substr(start, len)
+    },
+
+    /**
+     * 字符串去掉非数字字符
+     * @param str 要操作的字符串
+     */
+    GetStrDelNotNumber (str) {
+        return str.replace(/[^0-9]/ig,"")
+    },
+
+    /**
+     * 字符串去掉数字字符
+     * @param str 要操作的字符串
+     */
+    GetStrDelNumber (str) {
+        return str.replace(/[0-9]/ig,"")
+    },
+
+    /**
      * 数组删除元素
      * @param 要操作的数组
      * @param 数组下标
      * @param 要删除的个数
+     * @returns 返回被删除的元素
      */
     DelArray (array, index, count=1) {
         return array.splice(index, count)

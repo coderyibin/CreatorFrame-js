@@ -145,7 +145,7 @@ module.exports = {
     layer : layer,
     unit : unit,
     loading : loading,
-    ctrl : data + ctrl,
+    ctrl : ctrl,
     data : data,
     msg : msg,
     tip : tip

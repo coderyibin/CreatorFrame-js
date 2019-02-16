@@ -9,6 +9,7 @@ var BaseUnit = cc.Class({
     },
 
     properties : {
+
         UsedragonBones : {
             tooltip : "是否使用龙骨动画",
             type : cc.Enum({
@@ -17,8 +18,9 @@ var BaseUnit = cc.Class({
             }),
             default : 0,
         },
+
         dragonBones : {
-            tooltip : "龙骨动画组件",
+            tooltip : "龙骨动画组件,这里放置默认使用的龙骨资源",
             type : dragonBones.ArmatureDisplay,
             default : null,
         },
@@ -56,8 +58,13 @@ var BaseUnit = cc.Class({
     },
 
     _initUI () {
-        if (this.UsedragonBones == 1) {//龙骨动画
+        if (this.UsedragonBones == 1) {//龙骨动画--先验证默认的龙骨资源
             this._dragonBones = this.dragonBones//this.node.getComponent(dragonBones.ArmatureDisplay)
+        }
+
+        this._initProperty()
+
+        if (this.UsedragonBones == 1) {
             if (! this._dragonBones) {
                 Com.error('龙骨动画节点不能是空的')
                 return
@@ -65,7 +72,6 @@ var BaseUnit = cc.Class({
             this._armature = this._dragonBones.armature()
             dragonBones.WorldClock.clock.add(this._armature);
         }
-        this._initProperty()
     },
 
     /**
@@ -76,7 +82,19 @@ var BaseUnit = cc.Class({
             if (this._data['pos']) this.node.position = this._data['pos'] 
             if (this._data['rotation']) this.node.rotation = this._data['rotation']
             if (this._data['size']) this.node.setContentSize(cc.size(this._data['size'].width, this._data['size'].height))
+            if (this._data['dragon']) {
+                this.dragonBones.dragonAsset = this._data['dragon']
+                this.dragonBones.dragonAtlasAsset = this._data['dragonAsset']
+                this._dragonBones = this.dragonBones
+            }
         }
+    },
+
+    /**
+     * 获取对象数据Data
+     */
+    GetData () {
+        return this._data
     },
 
     /**
@@ -204,6 +222,24 @@ var BaseUnit = cc.Class({
     Set (index, data) {
         this._data = data
         this._index = index 
+    },
+
+    UpdateUnit (index, data) {
+        if (index == this._index) {
+            this.onUnit(data)
+        }
+    },
+
+    onUnit (data) { },
+
+    /**
+     * 获取单元某个属性的值
+     * @param key
+     * @returns value
+     */
+    GetProperty (key) {
+        if (this[key] || this.hasOwnProperty(key)) return this[key]
+        return Com.error('单元没有' + key + '值') 
     },
 
 })

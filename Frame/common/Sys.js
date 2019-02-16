@@ -1,4 +1,5 @@
 module.exports = {
+    Version : cc.ENGINE_VERSION,//creator 版本号
     ScrollView_To_Top : 'scroll-to-top',//滚动视图滚动到顶部边界事件
     ScrollView_To_Bottom : 'scroll-to-bottom',//滚动视图滚动到底部边界事件
     ScrollView_To_Left : 'scroll-to-left',//滚动视图滚动到左边界事件
@@ -78,5 +79,21 @@ module.exports = {
             //子节点的大小会随着容器的大小自动缩放。
             Children : cc.Layout.ResizeMode.CHILDREN,
         }
-    }
+    },
+
+    /**
+     * 平台判断
+     */
+    Platform : {
+        OS : cc.sys.os,//平台判断
+        IOS : cc.sys.OS_IOS,//ios
+        ANDROID : cc.sys.OS_ANDROID,//android
+        WINDOWS : cc.sys.OS_WINDOWS,//win
+        ISNATIVE : cc.sys.isNative,//is native
+    },
+
+    /**
+     * 是否是微信小游戏
+     */
+    IsWeChatGame : cc.sys.platform === cc.sys.WECHAT_GAME
 }

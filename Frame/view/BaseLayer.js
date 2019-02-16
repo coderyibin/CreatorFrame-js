@@ -10,9 +10,11 @@ var BaseLayer = cc.Class({
         _data : null,
 
         /**如果有tiledmap 地图组件 */
+        _tiledFileName : '',//地图文件名
         _tiledMapComp : null,//地图组件
-        _tiledMapSize : null,//地图大小 像素
+        _tiledMapSize : null,//地图大小总图块个数
         _tiledSize : null,//地图大小 背景地图
+        _tiledMapNodeSize : null,//地图大小，总像素
         /**如果有tiledmap 地图组件 */
     },
 
@@ -69,18 +71,23 @@ var BaseLayer = cc.Class({
     /**
      * 设置瓦片地图组件
      * @param name 瓦片地图名称
+     * @param node 地图所在的节点，默认当前节点
      */
-    SetTiledMap (name) {
-        let map = this.node.getComponent(cc.TiledMap)
+    SetTiledMap (name, node=this.node) {
+        let map = node.getComponent(cc.TiledMap)
         if (! map) {
-            map = this.node.addComponent(cc.TiledMap)
+            map = node.addComponent(cc.TiledMap)
         }
+        this._tiledFileName = name
+        map.tmxAsset = RES.Get(name)
         //瓦片地图组件
         this._tiledMapComp = map
         //地图大小
         this._tiledMapSize = map.getMapSize()
         //获取地图背景中 tile 元素的大小。
         this._tiledSize = map.getTileSize()
+        //地图总大小
+        this._tiledMapNodeSize = node.getContentSize()
         //地图加载结束后的通知
         this.Emit('onTiledMapOnEnter')
     },
@@ -95,8 +102,11 @@ var BaseLayer = cc.Class({
      */
     Set (data) {
         this._data = data
-        // this._initTiledMap()        
+        // this._initTiledMap()   
+        this.onData()
     },
+
+    onData () { },
 
     // /**
     //  * 初始化地图的数据
@@ -113,6 +123,15 @@ var BaseLayer = cc.Class({
     
     Remove (clean=false) {
         this.Emit('onClearLayer', this._script)
+        this._removeEvent()
         this._super(clean)
+    },
+
+    _removeEvent () {
+        let events = this._arrEmit
+        Com.info('移除监听器--', events)
+        for (let i in events) {
+            this._emitter.un(events[i])
+        }
     },
 })

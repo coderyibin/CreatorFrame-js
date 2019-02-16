@@ -10,17 +10,25 @@ var Common = {
     //是否开启多语言
     OpenLanguage : true,
     //是否热更新
-    IsHotUpdate : true,
-    //默认语言Chinese/Englist
+    IsHotUpdate : false,
+    //语言
+    Language : {
+        Chinese : 'Chinese',
+        English : 'English',
+        ChineseChara : 'ChineseChara',
+    },
+    //默认语言Chinese/English
     DefaultLanguage : 'Chinese',
     //本地数据key
     LocalKey : {
-        Audio : 'Audio'
+        // Audio : 'Audio'
     },
     //场景名称--也可以用配置文件来代替
     SceneName : {
+        SceneLoading : 'Scene_Loading',
         SceneLogin : 'Scene_Login',
         SceneGame : 'Scene_Game',
+        SceneMain : 'Scene_Main',
         SceneMenu : 'Scene_Menu',
 
         LayerMap : 'Layer_Map',
@@ -53,6 +61,12 @@ var Common = {
         UnitHero3 : "Unit_Hero3",
         UnitHero4 : "Unit_Hero4",
         UnitHero5 : "Unit_Hero5",
+        UnitNeedle : "Unit_Needle",
+        UnitCircle : "Unit_CircleNeedle",
+        UnitBullet : "Unit_Bullet",
+        UnitMonster : "Unit_Monster",
+
+        Msg_Window : "Msg_Window",
     },
     //路由
     Routes : {
@@ -60,6 +74,16 @@ var Common = {
         Login : 'connector.entryHandler.login',
         Register : 'connector.entryHandler.register',
         SynchroUser: 'connector.entryHandler.synchroInfo',
+        CreateRoom : 'connector.entryHandler.createRoom',
+        JoinRoom : 'connector.entryHandler.JoinRoom',
+        LeaveRoom : "connector.entryHandler.leaveRoom",
+        DealCard : 'fight.fightHandler.deal',
+        RequestMain : 'fight.fightHandler.requestMain',
+        Main : 'fight.fightHandler.robLandlord',
+        OutCard : 'fight.fightHandler.outCard',
+        PassCard : 'fight.fightHandler.pass',
+        NotRob : 'fight.fightHandler.notRob',
+        Again : 'fight.fightHandler.again',
     },
     //http请求
     Http : {

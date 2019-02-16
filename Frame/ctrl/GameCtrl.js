@@ -1,10 +1,14 @@
 var GameData = require('../../Frame/module/GameData')
 var Common = require('../../Frame/common/Common')
+var CusAudio = require('../common/CusAudio')
 var BaseCtrl = require('../ctrl/BaseCtrl')
-var ItemCtrl = require('../../Game/Ctrl/ItemCtrl')
-var EquipmentCtrl = require('../../Game/Ctrl/EquipmentCtrl')
-var HeroCtrl = require('../../Game/Ctrl/HeroCtrl')
-var PackCtrl = require('.././../Game/Ctrl/PackCtrl')
+var CusEvent = require('../ctrl/CusEvent')
+var Sys = require('../common/Sys')
+var Http = require('../common/Http')
+
+/****************不同游戏的控制器****************************/
+/****************不同游戏的控制器****************************/
+
 
 const i18n = require('LanguageData')
 
@@ -17,6 +21,21 @@ class GameCtrl extends BaseCtrl {
         
         this._gameData = new GameData()
         this.SetAudio(this.GetAudio())
+        this._nRoundScore = null
+        //登录成功跳转的场景
+        this._sLoginScene = ''
+        // //获取ip
+        // this.GetIP()
+
+        //http数据的链接地址
+        this._sHttp = ''
+
+        //winSize
+        this._sizeWinSize = null
+        //framwSize
+        this._sizeFrameSize = null
+
+        this.InitGameBeforeConfig()
     }
 
     /**
@@ -26,14 +45,36 @@ class GameCtrl extends BaseCtrl {
         Com.info('After the start of a game some initialization')
         this.initGameCtrl()
 
-        //道具初始化
-        ItemCtrl.getInstance()
-        //装备初始化
-        EquipmentCtrl.getInstance()
-        //初始化玩家英雄
-        HeroCtrl.getInstance()
-        //初始化玩家背包
-        PackCtrl.getInstance()
+        //初始化各个控制器
+        /*********这边根据不同的游戏进行更改*****************/
+        /*********这边根据不同的游戏进行更改*****************/
+
+        //重设设备id
+        let sign = this.GetDeviceInfo()
+        if (sign)
+        {
+            GamePlatform.getInstance().SetDeviceSign(sign)
+        }
+
+        //输出分辨率信息
+        this._sizeWinSize = cc.director.getWinSizeInPixels()
+        this._sizeFrameSize = cc.view.getFrameSize()
+        Com.info('可视区域大小 FrameSize：', this._sizeFrameSize)
+        Com.info('视图大小 WinSize：', this._sizeWinSize)
+    }
+
+    /**
+     * 获取WinSize 分辨率大小-像素
+     */
+    GetWinSize () {
+        return this._sizeWinSize
+    }
+
+    /**
+     * 获取FrameSize 实际物理大小
+     */
+    GetFrameSize () {
+        return this._sizeFrameSize
     }
 
     /**
@@ -44,8 +85,71 @@ class GameCtrl extends BaseCtrl {
         //多语言配置
         if (Common.OpenLanguage == true) {
             Com.warn('开启多语言')
-            i18n.init(Common.DefaultLanguage);
+            i18n.init('Chinese');
         }
+
+        this._logTargetPlatform()
+    }
+
+    /**
+     * 输出目标平台信息
+     */
+    _logTargetPlatform () {
+        if (Sys.IsWeChatGame) {
+            Com.info('cur platform is WechatGame')
+            return
+        }
+        //输出目标平台信息
+        switch (Sys.Platform.OS) {
+            case Sys.Platform.ANDROID :
+            Com.info('cur platform is Android')
+            break
+            case Sys.Platform.IOS :
+            Com.info('cur platform is iOS')
+            break
+            case Sys.Platform.WECHATGAME :
+            Com.info('cur platform is WechatGame')
+            break
+            case Sys.Platform.WINDOWS :
+            Com.info('cur platform is Windows')
+            break
+            default : 
+            Com.info('other platform')
+            break
+        }
+    }
+
+    /**
+     * 设置http服务器的链接地址
+     * @param link 地址
+     */
+    SetHttpAddress (link) {
+        this._sHttp = link
+    }
+
+    /**
+     * 获取Http服务器链接地址
+     */
+    GetHttpAddress () {
+        return this._sHttp
+    }
+
+    /**
+     * 获取本机IP
+     */
+    GetIP () {
+        new Http().Get('http://2019.ip138.com/ic.asp', function (res) {
+            Com.info(res)
+        })
+    }
+
+    /**
+     * 设置语言
+     */
+    SetLanguage (key) {
+        Common.DefaultLanguage = key
+        i18n.init(Common.DefaultLanguage);
+        this._gameData.SetLanguage(key)
     }
 
     /**
@@ -65,11 +169,47 @@ class GameCtrl extends BaseCtrl {
     }
 
     /**
+     * 获取设备注册情况
+     */
+    GetDeviceInfo () {
+        return this._gameData.GetDeviceSign()
+    }
+
+    /**
+     * 更新设备注册情况
+     */
+    SetDeviceInfo (info) {
+        this._gameData.UpdateDeviceSign(info)
+    }
+
+    /**
+     * 设置设备信息
+     */
+    SetDeviceSign (sign) {
+        GamePlatform.getInstance().SetDeviceSign(sign)
+        this.SetDeviceInfo(true)
+    }
+
+    /**
+     * 获取设备信息
+     */
+    GetDeviceSign () {
+        return this._gameData.GetDeviceIdSign()
+    }
+
+    /**
      * 游戏登陆
      * @param {*} data 
      * @param {*} cb 
      */
     Login (data, cb) {
+        // this._sLoginScene = data.scene || ''
+        if (cb) {
+            this._sLoginScene = cb
+        } else {
+            Com.error('登录回调函数不能是空')
+            return
+        }
         this._account = data.account
         this._password = data.password
         switch (data.type) {
@@ -106,11 +246,13 @@ class GameCtrl extends BaseCtrl {
 
     //登陆/注册成功
     Success (data) {
-        this._event.emit('runScene', {scene : Common.SceneName.SceneGame})
-        UserCtrl.getInstance().LoginData(this._account, this._password)
+        // UserCtrl.getInstance().LoginData(this._account, this._password)
         UserCtrl.getInstance().InitUser(data)
+        this._gameData.SetLogin({account : this._account, password : this._password})
         //关闭断线连接提示框
-        this._event.getInstance().emit('NetClose')
+        this._event.emit('NetClose')
+        // this._event.emit('runScene', {scene : this._sLoginScene})
+        if (this._sLoginScene) this._sLoginScene()
     }
 
     //初始化游戏控制器
@@ -126,7 +268,75 @@ class GameCtrl extends BaseCtrl {
             }
             self.Login(data)
         })
+
+        //初始化音效
+        CusAudio.InitAudio(RES.GetConfig().BGMUSIC)
     }
+
+    /***************其他游戏的一些函数******************************/
+    /**
+     * 获取玩家存档名称
+     */
+    GetArchiveName () {
+        return this._gameData.GetArchiveName()
+    }
+
+    /**
+     * 设置玩家存档名称
+     */
+    SetArchiveName (name) {
+        this._gameData.SetArchiveName(name)
+    }
+	
+	/**
+     * 设置玩家本局分数
+     * @param score 分数
+     */
+    SetRoundScore (score) {
+        this._nRoundScore = score
+    }
+
+    /**
+     * 获取本局分数
+     */
+    GetRoundScore () {
+        return this._nRoundScore
+    }
+
+    /**
+     * 获取玩家最高分
+     */
+    GetMaxScore () {
+        let score = this._gameData.GetMaxScore()
+        return Number(score)
+    }
+
+    /**
+     * 更新玩家最高分
+     * @param score 分数
+     */
+    SetMaxScore (score) {
+        let _score = this.GetMaxScore()
+        if (score > _score) {
+            this._gameData.SetMaxScore(score)
+        }
+    }
+
+    /**
+     * 获取是否已经选择默认语言标志
+     */
+    GetDefaultLanguage () {
+        return this._gameData.GetDefaultLanguage()
+    }
+
+    /**
+     * 更新是否已经选择默认语言标志
+     * @param bool 是否选择
+     */
+    SetDefaultLanguage (bool) {
+        this._gameData.SetDefaultLanguage(bool)
+    }
+    /***************其他游戏的一些函数******************************/
 
     /**
      * 清理游戏所有数据
@@ -134,6 +344,8 @@ class GameCtrl extends BaseCtrl {
     Clear () {
         // this._gameData.ClearLocalKey()
         // cc.game.restart()
+        Com.warn('清理游戏数据')
+        CusEvent.getInstance().unAll()
     }
 
     static _fctor

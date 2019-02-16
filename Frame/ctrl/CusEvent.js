@@ -1,25 +1,13 @@
 
-var CusEvent = cc.Class({
-    extends : cc.Class,
 
-    properties : {
-        _event : null,
-        _once : null
-    },
+class CusEvent {
+    _event = null
+    _once = null
 
-    statics : {
-        _fctor : null,
-        getInstance () {
-            if (! this._fctor) {
-                this._fctor = new CusEvent()
-            } return this._fctor
-        }
-    },
-
-    ctor () {
+    constructor () {
         this._event = {};
         this._once = []
-    },
+    }
 
     /**
      * 注册事件
@@ -35,7 +23,7 @@ var CusEvent = cc.Class({
         }
         this._event[name]["cb"].push(cb);
         this._event[name]["target"] = self;
-    },
+    }
 
     /**
      * 注册单次事件
@@ -46,7 +34,7 @@ var CusEvent = cc.Class({
     once (name, cb, self) {
         this.on(name, cb, self)
         this._once.push(name)
-    },
+    }
 
     emit (name, data) {
         if (this._event[name]) {
@@ -64,7 +52,7 @@ var CusEvent = cc.Class({
         } else {
             console.warn("不存在该key订阅->", name);
         }
-    },
+    }
 
     un (name) {
         if (this._event[name]) {
@@ -73,7 +61,20 @@ var CusEvent = cc.Class({
         } else {
             // console.warn("不存在该key订阅->", name);            
         }
-    },
-});
+    }
 
-window['CusEvent'] = CusEvent
+    unAll () {
+        this._event = {}
+        this._once = []
+    }
+
+    static _fctor
+    static getInstance () {
+        if (! this._fctor) {
+            this._fctor = new CusEvent()
+        } return this._fctor
+    }
+}
+
+// window['CusEvent'] = CusEvent
+module.exports = CusEvent

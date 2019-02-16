@@ -27,11 +27,29 @@ var Res = cc.Class({
     GetConfig (file='Config') {
         return this.getGlobal()[file] || null
     }, 
+
+    GetCfg (file='Config') {
+        return this.GetConfig(file)
+    },
+
     /**
      * 兼容旧项目
      */
     getConfig (file='Config') {
         return this.getGlobal()[file]
+    },
+
+    /**
+     * 添加全局资源
+     * @param name 获取资源的key
+     * @param res 资源
+     */
+    JoinRes (name, res) {
+        if (this._global.hasOwnProperty(name)) {
+            Com.error('已经存在当前资源key-->', name)
+            return
+        }
+        this._global[name] = res
     },
 
     /**
@@ -131,7 +149,7 @@ var Res = cc.Class({
         //         return res instanceof cc.Prefab ? cc.instantiate(res.data) : res;
         //     }
         // }
-        cc.warn("未找到该资源", file);
+        cc.error("resources文件夹下未找到该资源", file);
         return null;
     },
 

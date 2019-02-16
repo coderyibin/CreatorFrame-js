@@ -1,6 +1,6 @@
-var CusEvent = require("../../Frame/ctrl/CusEvent")
-var Common = require("Common")
-var Global = require("Global")
+var CusEvent = require("../ctrl/CusEvent")
+var Common = require("../common/Common")
+var Global = require("../common/Global")
 var Sys = require('../common/Sys')
 var UI = require('./UIMgr')
 
@@ -81,16 +81,39 @@ var BaseComponent = cc.Class({
                 return this._hasLayer[layerName]
             }
         }
-        let node = this.ShowUnit(layerName, parent || this.GetCanvas())
+        if (! parent) parent = this.GetCanvas()
+        let node = this.ShowUnit(layerName, parent)
         if (only) this._hasLayer[layerName] = node
         return node
     },ShowLayer (layerName, parent, only=false) {return this.showLayer(layerName, parent, only)},
 
     /**
-     * 设置滚动列表数据
+     * 显示一个layer--可以带参数
+     * @param {*} layerName layer的资源名称
+     * @param {*} data 传输的参数 在layer脚本需要用实现一次onData()就可以用this._data这个变量
+     * @param {*} parent layer加入的父节点
+     * @returns node 节点
+     */
+    ShowLayerParam (layerName, data, parent) {
+        let node = this.ShowLayer(layerName, parent)
+        node.getComponent(layerName).Set(data)
+        return node
+    },
+
+    /**
+     * 获取一个Layer
+     */
+    GetLayer (name) {
+        if (this._hasLayer[name]) {
+            return this._hasLayer[name]
+        }
+    },
+
+    /**
+     * 设置滚动列表数据-必须是数组
      */
     SetListData (data) {
-        this._listData = data
+        this._listData = Global.CloneArray(data)
     },
 
     /**
@@ -106,7 +129,7 @@ var BaseComponent = cc.Class({
                 let data = this._listData
                 let parent = scroll.content
                 let layout = parent.getComponent(cc.Layout)
-                let left, bottom, top, right, width, spacingX
+                let left, bottom, top, right, width, spacingX, spacingY
                 width = parent.width
                 if (layout) {
                     left = layout.paddingLeft
@@ -114,6 +137,7 @@ var BaseComponent = cc.Class({
                     right = layout.paddingRight
                     top = layout.paddingTop
                     spacingX = layout.spacingX
+                    spacingY = layout.spacingY
                 }
                 let laywidth = left + right
                 this.ClearList(listName)
@@ -123,15 +147,17 @@ var BaseComponent = cc.Class({
                     if (layout.type == Sys.Layout.Type.Grid) {//网格布局
                         if (layout.startAxis == Sys.Layout.AxisDirection.Horizonal) {
                             let w = node.width
-                            if (i == 0) {
-                                parent.height += node.height * 2
-                            }
                             laywidth += w + spacingX
                             if (laywidth > parent.width) {
                                 parent.height += node.height
                                 laywidth = left + right
                             }
                         }
+                    } else if (layout.type == Sys.Layout.Type.Vertical) {//垂直布局
+                        parent.height += node.height + spacingY
+                    }
+                    if (i == 0) {
+                        parent.height += node.height * 2
                     }
                 }
             }
@@ -144,6 +170,81 @@ var BaseComponent = cc.Class({
         let scroll = node.getComponent(cc.ScrollView)
         scroll.content.removeAllChildren()
         scroll.content.height = 0
+    },
+
+    /**
+     * 获取*列表的*单元
+     * @param name 列表节点名称
+     * @param index 单元的唯一标识符
+     * @return comp 用户脚本组件
+     */
+    GetListIndex (name, index) {
+        let nodes = this.GetNodeComp(name, cc.ScrollView).content.children
+        for (let i = 0; i < nodes.length; i ++) {
+            let temp = this.GetNodeComp(nodes[i], nodes[i].name)
+            if (temp.GetIndex() == index) {
+                return temp
+            }
+        }
+    },
+
+    /**
+     * 更新列表中指定的Index的Item的值
+     */
+    UpdateListItem (name, index, data) {
+        let nodes = this.GetNodeComp(name, cc.ScrollView).content.children
+        for (let i = 0; i < nodes.length; i ++) {
+            let temp = this.GetNodeComp(nodes[i], nodes[i].name)
+           temp.UpdateUnit(index, data)
+        }
+    },
+
+    /**
+     * 添加pageview单元
+     * @param page pageview 节点或者组件对象
+     * @param item 将要添加进去的节点
+     */
+    AddPageView (page, item) {
+        if (! page) {
+            Com.error(page + ' 组件不能是空')
+            return
+        }
+        if (page instanceof cc.Node) {
+            page = page.getComponent(cc.PageView)
+            if (! page) {
+                return Com.error(page.name + '节点不存在pageview组件')
+            }
+        }
+        if (! item) {
+            return Com.error('节点不能为空：位置- BaseComponent:AddPageView()')
+        }
+        if (item instanceof cc.Node) {
+            item.removeFromParent()
+            page.addPage(item)
+        } else if (typeof(item) == String) {
+            return Com.error('item 参数必须是节点对象，不能是字符串或者其他')
+        }
+    },
+
+    /**
+     * 添加pageview单元,将页面插入指定位置中
+     * insertPage 
+     * @param page pageview 节点或者组件对象
+     * @param item 将要添加进去的节点
+     * @param index 将要添加进去的位置
+     */
+    InsertItem (page, item, index) {
+        if (! page) {
+            return Com.error(page + ' 组件不能是空')
+        }
+        if (page instanceof cc.Node) {
+            page = page.getComponent(cc.PageView)
+            if (! page) {
+                return Com.error(page.name + '节点不存在pageview组件')
+            }
+        }
+        item.removeFromParent()
+        page.insertPage(item)
     },
 
     /**

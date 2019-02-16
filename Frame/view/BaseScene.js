@@ -1,13 +1,18 @@
-var BaseComponent = require("BaseComponent")
-var Common = require('Common')
-var Sys = require('Sys')
-var CusTouch = require('CusTouch')
+var BaseComponent = require("./BaseComponent")
+var Common = require('../common/Common')
+var Sys = require('../common/Sys')
+var MsgText = require('./MsgText')
+var Action = require('../ctrl/CusAction')
+var CusTouch = require('../ctrl/CusTouch')
+var TouchMgr = require('../../Frame/view/TouchMgr')
+var GameCtrl = require('../../Frame/ctrl/GameCtrl')
 
 var BaseaScene = cc.Class({
     extends : BaseComponent,
 
     properties : {
         _physics : null,
+        _physicsDraw : null,
         _touchEnable : null,
         _startPos : null,
         _arrEmit : null,
@@ -22,10 +27,13 @@ var BaseaScene = cc.Class({
         this._collision = cc.director.getCollisionManager();
         this._collision.enabledDebugDraw = Common.IsShowCollision;
         this._physics = false
+        this._physicsDraw = false//绘制物理引擎碰撞
         this._touchEnable = false
         this._collision.enabled = false//未开启碰撞
         this._joinLayer = {}
-        this._arrEmit = ['onMsg', 'onGamePause', 'onGameResume', 'runScene', 'onNetLoading', 'onRemoveNetLoading', 'onClearLayer', 'onGameExit']
+        this._arrEmit = ['onMsg', 'onReStartGame', 'onGamePause', 'onGameResume', 
+        'runScene', 'onNetLoading', 'onRemoveNetLoading', 'onClearLayer', 'onGameExit',
+        'onMsgText']
         this._gameNode = this.getCanvas() 
         this.OnInit()
         this._log()
@@ -33,7 +41,7 @@ var BaseaScene = cc.Class({
         this._openPhysics()
         this._openTouch()
         //初始化游戏控制器
-        require('GameCtrl').getInstance()
+        GameCtrl.getInstance()
     },
 
     start () {
@@ -94,21 +102,59 @@ var BaseaScene = cc.Class({
         cc.game.end()
     },
 
+    /**
+     * 重启游戏
+     */
+    onReStartGame () {
+        GameCtrl.getInstance().Clear()
+        cc.game.restart()
+    },
+
     onClearLayer (layerName) {
         // if (this._hasLayer[layerName])
         //     delete this._hasLayer[layerName]
         this.DelLayer(layerName)
     },
 
+    /**
+     * 飘字提示
+     */
+    onMsgText (text) {
+        let self = this
+        let up = cc.moveBy(1, cc.v2(0, 150))
+        let node = MsgText.Create(this.GetCanvas(), text)
+        new Action().Sequence(node, up, cc.callFunc(function () {
+            node.removeFromParent()
+            node.destroy()
+        }))
+    },
+
+    /**
+     * 兼容旧项目
+     * data数据格式{layer:弹窗的预置资源名称, xxxx:xxxx, ...}
+     * @param {*} data 数据
+     */
     onMsg (data) {
         let self = this
-        let msg = RES.Get(Common.SceneName.LayerMsg)
-        if (msg) {
-            self._canvas.addChild(msg)
-            msg.getComponent(msg.name).set(data)
+
+        if (data['layer'] && RES.Get(data['layer'])) {
+            let node = this.ShowLayer(data['layer'], self.GetCanvas())
+            delete data['layer']
+            node.getComponent(node.name).set(data)
         } else {
-            RES.loadRes("Prefab/Layer_Msg", function (res) {
-                self._canvas.addChild(res)
+            // let msg = RES.Get(Common.SceneName.LayerMsg)
+            // if (msg) {
+            //     self._canvas.addChild(msg)
+            //     msg.getComponent(msg.name).set(data)
+            // } else {
+            //     RES.loadRes("prefab/Msg_Window", function (res) {
+            //         self._canvas.addChild(res)
+            //     })
+            // }
+            RES.loadRes("prefab/Msg_Window", function (res) {
+                let node = self.GetNode(res)
+                self.GetCanvas().addChild(node)
+                self.GetNodeComp(node, node.name).Set(data)
             })
         }
     },
@@ -134,6 +180,14 @@ var BaseaScene = cc.Class({
     _openPhysics () {
         if (this._physics) {
             cc.director.getPhysicsManager().enabled = true
+            if (this._physicsDraw) {
+                cc.director.getPhysicsManager().debugDrawFlags = cc.PhysicsManager.DrawBits.e_aabbBit |
+                    cc.PhysicsManager.DrawBits.e_pairBit |
+                    cc.PhysicsManager.DrawBits.e_centerOfMassBit |
+                    cc.PhysicsManager.DrawBits.e_jointBit |
+                    cc.PhysicsManager.DrawBits.e_shapeBit
+                    ;
+            }
         }
     },
 
@@ -169,7 +223,7 @@ var BaseaScene = cc.Class({
      * @param {*} parent layer要加入的父节点，为空则加入canvas中
      */
     ShowLayer (name, parent) {
-        if (this._joinLayer[name]) {
+        if (this._joinLayer && this._joinLayer[name]) {
             return this._joinLayer[name]
         }
         this._joinLayer[name] = this._super(name, parent)
@@ -180,11 +234,12 @@ var BaseaScene = cc.Class({
      * 删除一个ShowLayer 方式创建的Layer预制资源
      */
     DelLayer (name) {
-        if (! this._joinLayer[name]) {
+        if (! this._joinLayer || ! this._joinLayer[name]) {
             Com.warn('不存在layer：', name)
             return
         }
         this._joinLayer[name].removeFromParent()
+        this._joinLayer[name].destroy()
         delete this._joinLayer[name]
     },
 
@@ -194,9 +249,14 @@ var BaseaScene = cc.Class({
 
     _removeEvent () {
         let events = this._arrEmit
+        Com.info('移除监听器--', events)
         for (let i in events) {
             this._emitter.un(events[i])
         }
+    },
+
+    Emit (emitName, emitData) {
+        this._emitter.emit(emitName, emitData)
     },
 
     onNetLoading () {
@@ -226,9 +286,11 @@ var BaseaScene = cc.Class({
      * @param 场景名称 name 
      */
     _runScene (name) {
-        console.log("跳转场景-->", name)
+        Com.info("跳转场景-->", name)
         cc.director.loadScene(name)
+        this._removeEvent()
     },
+    
     //节点被销毁之后调用
     onDestroy () {
         this._removeEvent()

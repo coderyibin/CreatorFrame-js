@@ -1,7 +1,8 @@
-var Common = require("Common")
+var Common = require("../common/Common")
 const i18n = require('LanguageData')
-var Global = require('Global')
-var Sys = require('Sys')
+var Global = require('../common/Global')
+var Sys = require('../common/Sys')
+var Tools = require('../common/Tools')
 
 /**
  * 当前类为UI的基类
@@ -12,6 +13,15 @@ var UI = cc.Class({
     extends : cc.Component,
 
     properties : {
+        UiCache : {
+            default : 0,
+            type : cc.Enum({
+                'true' : 0,
+                'false' : 1
+            }),
+            tooltip : '是否遍历ui缓存起来，如果选false的话，该脚本的据大多数函数将不可用,将只能使用creator所自带的功能',
+        },
+
         _script : null,
         _allNode : null,
         _canvas : null,
@@ -19,6 +29,8 @@ var UI = cc.Class({
         _disTime : null,
         _global : null,
         _common : null,
+        _tools : null,
+        _numberEdits : null,
     },
 
     onLoad () {
@@ -29,12 +41,17 @@ var UI = cc.Class({
         this._disTime = {}
         this._global = Global
         this._common = Common
+        this._tools = Tools
+        this._numberEdits = []
     },
 
     /**
      * 初始化当前节点ui
      */
     InitUI () {
+        if (this.UiCache == 1) {
+            return
+        }
         this._allNode = {}
         let node = this.node
         this._start(node)
@@ -111,7 +128,22 @@ var UI = cc.Class({
             let register = false
             let self = this
             if (self[funcName]) {//输入框改变的时候调用
-                node.on(Sys.Editing, self[funcName].bind(self), self);
+                // node.on(Sys.Editing, self[funcName].bind(self), self);
+                let changeFunc = funcName
+                node.on(Sys.Editing, function (e) {
+                    //用户输入的除了最后一个字符串的字符串 145d => 145
+                    let string = Global.GetSubStr(e.detail.string, 0, e.detail.string.length - 1)
+                    let endstring = Global.GetSubStr(e.detail.string, e.detail.string.length - 1, 1)
+
+                    let allow = self._isAllowNumber(e.detail.node.name)
+                    if (allow) {//当前输入框只允许输入数字
+                        let bool = Global.StrIsNumber(endstring)
+                        if (! bool) {
+                            e.detail.string = string
+                        }
+                    }
+                    self[changeFunc](e)
+                }, self);
                 register = true
             }
             funcName = "_editBox_began_" + name;
@@ -133,10 +165,42 @@ var UI = cc.Class({
     },
 
     /**
+     * 注册监听只允许用户输入数字
+     * @param name 输入框的节点名称
+     */
+    _registerAllowNumber (name) {
+        for (let i in this._numberEdits) {
+            if (this._numberEdits[i] == name) {//已经存在，不需要重复注册
+                return
+            }
+        }
+        this._numberEdits.push(name)
+    },
+
+    /**
+     * 判断只允许用户输入数字的输入框
+     * @param name 输入框的节点名称
+     */
+    _isAllowNumber (name) {
+        for (let i in this._numberEdits) {
+            if (this._numberEdits[i] == name) {
+                return true//数字
+            }
+        }
+        return false//非数字
+    },
+
+    /**
      * 由节点名称获取节点
-     * @param {*} name 
+     * @param {*} name 节点名称或者对象预制资源之类
      */
     GetNode(name) {
+        //如果是预制资源，则克隆出一个节点返回
+        if (name instanceof cc.Prefab) {
+            let node = cc.instantiate(name)
+            return node
+        }
+        //通过框架遍历
         let node = this._allNode[name]
         if (! node) {
             console.error(name + ':node not found')
@@ -157,6 +221,20 @@ var UI = cc.Class({
      */
     GetAllNode () {
         return this._allNode
+    },
+
+    /**
+     * 获取指定节点坐标
+     * @param node 节点名称或者节点对象-仅限于当前creator界面场景中的节点，无法获取动态创建的节点
+     */
+    GetNodePosition (node) {
+        if (! node || node == '') {
+            return Com.error('获取节点坐标，节点对象参数不能是空的')
+        }
+        if (node instanceof Object) {
+            return node.position
+        }
+        return this.GetNode(node).position
     },
 
     /**
@@ -307,7 +385,7 @@ var UI = cc.Class({
                 node.getComponent(cc.Label).string = value
             }
             if (values.length > 0) {
-                let str = this.GetLabelString(name)
+                let str = this.getLabelString(name)
                 for (let i in values) {
                     node.getComponent(cc.Label).string = str.replace(/%s/, values[i])
                 }
@@ -320,6 +398,22 @@ var UI = cc.Class({
      */
     setLabelValue (name, value, ...values) {
         this.SetLabelValue(name, value, ...values)
+    },
+
+    /**
+     * 设置动态文本 - 不作为多语言使用的文本
+     * @param {*} name 
+     * @param {*} value 
+     */
+    SetDyLabelValue (name, value) {
+        let node = this.GetNode(name)
+        if (node) {
+            if (node.getComponent('LocalizedLabel')) {
+                Com.warn('动态文本不需要有多语言脚本,请移除!' + name)
+                node.removeComponent('LocalizedLabel')
+            }          
+            node.getComponent(cc.Label).string = value  
+        }
     },
 
     /**
@@ -374,7 +468,7 @@ var UI = cc.Class({
     },
 
     /**
-     * 移除所有节点
+     * 移除所有子节点
      * @param 节点名称
      * @param 如果不传入 cleanup 参数或者传入 true，那么这个节点上所有绑定的事件、action 都会被删除。
      */
@@ -412,10 +506,12 @@ var UI = cc.Class({
      */
     ShowNode (name) {
         if (name instanceof Object) {
+            if (name.active) return 
             return name.active = true
         }
         let node = this.GetNode(name)
         if (node) {
+            if (node.active) return 
             node.active = true
         }
     },
@@ -430,11 +526,12 @@ var UI = cc.Class({
             return
         }
         if (name instanceof Object) {
-            name.active = false
-            return
+            if (! name.active) return 
+            return name.active = false
         }
         let node = this.GetNode(name)
         if (node) {
+            if (! node.active) return 
             node.active = false
         }
     },
@@ -463,7 +560,8 @@ var UI = cc.Class({
             Com.error('组件名称不能是空')
             return
         }
-        if (name instanceof String) {
+        //name为字符串
+        if (name instanceof String || typeof(name) == 'string') {
             let node = this.GetNode(name)
             if (node) {
                 let _comp = node.getComponent(comp)
@@ -500,6 +598,38 @@ var UI = cc.Class({
      */
     AddChild (node) {
         this.node.addChild(node)
+    },
+
+    /**
+     * 设置节点颜色
+     * @param node 节点名或者节点对象
+     * @param color 颜色值
+     * @example this.SetNodeColor(node, new cc.Color(xxx,xxx,xxx,xxx))
+     */
+    SetNodeColor (node, color=new cc.Color(255, 255, 255, 255)) {
+        if (node instanceof String || typeof(node) == 'string') {
+            node = this.GetNode(node)
+        }
+        if (! node) {
+            node.color = color
+        } else {
+            Com.error(node + '当前节点不存在,请检查！')
+        }
+    },
+
+    /**
+     * 获取节点颜色
+     * @param node 节点名或者节点对象
+     */
+    GetNodeColor (node) {
+        if (node instanceof String || typeof(node) == 'string') {
+            node = this.GetNode(node)
+        }
+        if (! node) {
+            return node.color
+        } else {
+            Com.error(node + '当前节点不存在,请检查！')
+        }
     },
 
     /**
@@ -565,6 +695,10 @@ var UI = cc.Class({
             return
         }
         let node = this.GetResNode(name)
+        if (! node) {
+            Com.error(name + '资源不存在，请检查resources资源或者配置文件！')
+            return
+        }
         parent.addChild(node)
         let comp = this.GetNodeComp(node, node.name)
         if (comp && data) {
@@ -574,13 +708,51 @@ var UI = cc.Class({
     },
 
     /**
+     * 获取当前场景对象的用户脚本组件-与场景同名的脚本组建
+     */
+    GetSceneClass () {
+        let canvas = this.GetCanvas()
+        let comp = this.GetNodeComp(canvas, cc.director.getScene().name)
+        return comp
+    },
+
+    /**
+     * 设置精灵帧-旧接口
+     */
+    _setSpriteFrame (node, image, atals) {
+        let comp = node.getComponent(cc.Sprite)
+        if (comp) {
+            //如果是合图
+            if (atals) {
+                let res = RES.GetAtlas(image, atals)
+                if (res) {
+                    comp.spriteFrame = res
+                    return
+                } Com.error('没有合图加载图片纹理:'+ atals + '图片名称：' + image)
+                return
+            }
+            let res = RES.Get(image)
+            if (res) {
+                comp.spriteFrame = res
+                return
+            } Com.error('没有加载图片纹理:'+ image)
+        } Com.error('该节点没有精灵组件:'+ name)
+    },
+
+    /**
      * 更改精灵帧-旧接口
-     * @param name 节点名称
+     * @param name 节点名称或者节点对象
      * @param image 精灵的图片名称
      * @param atals 精灵合图名称
      */
     ChangeSpriteFrame (name, image, atals=null) {
-        let node = this.getNode(name)
+        let node
+        if (name instanceof String || typeof(name) == 'string') {
+            node = this.getNode(name)
+        } else {
+            node = name
+        }
+        // let node = this.getNode(name)
         if (node) {
             let comp = node.getComponent(cc.Sprite)
             if (comp) {
@@ -595,7 +767,7 @@ var UI = cc.Class({
                 }
                 let res = RES.Get(image)
                 if (res) {
-                    comp.spriteFrame = image
+                    comp.spriteFrame = res
                     return
                 } Com.error('没有加载图片纹理:'+ image)
             } Com.error('该节点没有精灵组件:'+ name)
@@ -605,18 +777,63 @@ var UI = cc.Class({
     /**
      * 改变精灵spriteFrame-新接口
      * 当前接口会优先寻找image表中匹配的数据,如果没有,则在全局资源中寻找匹配数据
+     * 全局中的资源寻找不包含合图资源
      * 
      * @param node 要装载的精灵节点或者节点名称
      * @param image 图片名称
      */
     SetSpriteFrame (node, image) {
+        if (! image) {
+            Com.error('图片名称不能是空的' + image)
+            return
+        }
+        if (! node) {
+            Com.error('要替换纹理的精灵组件节点不能为空')
+            return
+        }
         let imageCfg = RES.GetConfig('image')
         let res = imageCfg[image]
-        if (res.Atlas) {//合图中寻找
-            this.ChangeSpriteFrame(node, res.Name, res.AtlasName)
-        } else {
-            this.ChangeSpriteFrame(node, res.Name)
+        //没有image配置文件的情况下
+        if (! res) {
+            this.ChangeSpriteFrame(node, image)
+            return 
         }
+        if (res && res.Atlas) {//合图中寻找
+            this.ChangeSpriteFrame(node, res.Name, res.AtlasName)
+        } else if (res) {
+            this.ChangeSpriteFrame(node, res.Name)
+        } else {
+            Com.warn('图片资源不存在，请确认是否存在名称 ' + image + '的图片')
+        }
+    },
+
+    // /**
+    //  * 居于节点对象 改变精灵的Frame
+    //  * @param node 节点对象
+    //  * @param image 图片名称
+    //  */
+    // SetSpriteFrameOfNode (node) {
+    //     let imageCfg = RES.GetConfig('image')
+    //     let res = imageCfg[image]
+    //     if (res.Atlas) {//合图中寻找
+    //         // this.ChangeSpriteFrame(node, res.Name, res.AtlasName)
+    //         this._setSpriteFrame(node, res.Name, res.AtlasName)  
+    //     } else {
+    //         // this.ChangeSpriteFrame(node, res.Name)
+    //         this._setSpriteFrame(node, res.Name) 
+    //     }
+    // },
+
+    /**
+     * 执行节点上所在的动画
+     * @param node 动画所在节点或者节点名称
+     * @param name 动画名称
+     */
+    PlayAnimation (node, name) {
+        if (typeof(node) == 'string' || node instanceof String) {
+            node = this.GetNode(node)
+        }
+        this.GetNodeComp(node, 'cc.Animation').play(name)
     },
 
     onDestroy () {

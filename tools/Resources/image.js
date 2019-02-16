@@ -27,19 +27,8 @@ function getFileList(path){
             var f = files[i]
             if (f.indexOf(".meta") < 0 && f.indexOf(".plist") >= 0) {
                 console.log(f)
-                // var data = fs.readFileSync(f,'utf-8');
-                fs.readFile(f,'utf8',(err, data) => {
-                    if(err){
-                        me.readFils(index+1);
-                        return false;
-                    }
-                    let result = [];
-                    while( result = me.regs.exec(data))
-                    {
-                        me.outPathObj[result[0]] = result[0];
-                    }
-                    me.readFils(index+1);
-                });
+                var data = fs.readFileSync(f,'utf-8');
+                console.log(data)
             }
         }
 	});

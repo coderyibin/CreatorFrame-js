@@ -1,4 +1,4 @@
-var Common = require('Common')
+var Common = require('../common/Common')
 var Event = require('CusEvent')
 var Pomelo = cc.Class({
     extends : cc.Class,
@@ -7,13 +7,21 @@ var Pomelo = cc.Class({
     },
 
     _on () {
+        //初始化pomelo几个监听器
         pomelo.on('onServer', function (data) {
-            Event.getInstance().emit('onRemoveNetLoading')
-            let code = data.Code
+            let code = data.Code || data.code
+            Com.info('listener:', code, '-->', data.data)
             Event.getInstance().emit(code, data.data)
+            Event.getInstance().emit('onRemoveNetLoading')
         })
         pomelo.on('heartbeat timeout', function () {
             Event.getInstance().emit('sockieClose')
+        })
+        pomelo.on('disconnect', function () {
+            Event.getInstance().emit('onMsg', {
+                layer : Common.SceneName.Msg_Window,
+                content : '网络已断开，请重新登录'
+            })
         })
     },
 
@@ -48,11 +56,13 @@ var Pomelo = cc.Class({
             if (data.code == 200) {
                 Com.info('server call -->', data.data)
                 if (cb) cb(data.data)
+            } else if (data.code == 201) {//弹窗错误提示
+                Event.getInstance().emit('onMsg', {content : data['msg'], layer : 'Msg_Window'})
             } else {
                 if (data['Code']) {
-                    Event.getInstance().emit('onMsg', {content : data['Code']})
+                    Event.getInstance().emit('onMsg', {layer : 'Msg_Window', content : /*data['Code']*/data['msg']})
                 } else {
-                    Event.getInstance().emit('onMsg', {content : "SERVERERROR"})                    
+                    Event.getInstance().emit('onMsg', {content : data['msg'] || "SERVERERROR", layer : 'Msg_Window'})                    
                 }
             }
         })
@@ -66,4 +76,4 @@ var Pomelo = cc.Class({
     },
 })
 
-window['Pomelo'] = new Pomelo()
+window['Pomelo'] = module.exports = new Pomelo()

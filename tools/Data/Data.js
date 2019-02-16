@@ -21,6 +21,16 @@ function praseExcel(list, name)
             var _data = {}
             for (var k in curData) {
                 var type = typeArray[k]
+                if (curData[k] == '-') {
+                    if (type == 'string') {
+                        _data[keyArray[k]] = ''
+                    } else if (type == 'list') {
+                        _data[keyArray[k]] = []
+                    } else {
+                        _data[keyArray[k]] = undefined                 
+                    }
+                    continue
+                }
                 if (type == 'int32') {
                     _data[keyArray[k]] = curData[k]
                 } else if (type == 'string') {
@@ -55,15 +65,9 @@ function praseExcel(list, name)
                 } else if (type == 'json') {
                     _data[keyArray[k]] = JSON.parse(curData[k])
                 } else {
-                    throw new Error('表格有误->'+ name+ ':'+ j);
+                    throw new Error('表格有误->'+ name+ ':'+ j + '-->' + curData[k]);
                 }
-                if (curData[k] == '-') {
-                    if (type == 'string') {
-                        _data[keyArray[k]] = ''
-                    } else {
-                        _data[keyArray[k]] = 0                        
-                    }
-                }
+
                 json[curData[0]] = _data
             }
         }

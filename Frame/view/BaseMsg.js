@@ -1,5 +1,5 @@
-var BaseLayer = require('BaseLayer')
-var CusEvent = require('CusEvent')
+var BaseLayer = require('./BaseLayer')
+var CusEvent = require('../ctrl/CusEvent')
 
 var BaseMsg = cc.Class({
     extends : BaseLayer,
@@ -78,6 +78,7 @@ var BaseMsg = cc.Class({
     },
 
     _tap_Ok () {
+        this.Remove(true)
         if (this._okCb) {
             this._okCb(this)
         }

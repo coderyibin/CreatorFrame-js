@@ -28,6 +28,10 @@ var BaseMsg = cc.Class({
         if (this['openCall']) this['openCall']()
     },
 
+    _tap_Cancel () {
+        this.Remove(true)
+    }
+
     // /**
     //  * 移除弹窗动作
     //  */

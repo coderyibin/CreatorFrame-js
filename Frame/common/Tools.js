@@ -2,6 +2,7 @@
  * 对cocos引擎的一个简单的封装函数
  * 引擎文件路径在：cocos2d/core/value-types/CCPointExtension.js
  */
+var Sys = require('./Sys')
 var Tools = {
     /*
     * !#en smallest such that 1.0+FLT_EPSILON != 1.0.
@@ -9,8 +10,8 @@ var Tools = {
     * @property POINT_EPSILON
     * @type {Number}
     * @static
+    * // POINT_EPSILON = parseFloat('1.192092896e-07F'),
     */
-    // POINT_EPSILON = parseFloat('1.192092896e-07F'),
     GetPointEpsilon () {
         return parseFloat('1.192092896e-07F')
     },
@@ -652,6 +653,10 @@ var Tools = {
     //     return false;
     // };
     GetSameAs (A, B) {
+        if (Sys.Version[0] > 1) {
+            Com.warn('该方法已经废弃')
+            return
+        }
         return cc.pSameAs(A, B)
     },
 
@@ -771,8 +776,7 @@ var Tools = {
      * @param {node} node 目标节点
      * @param {Vec2} worldPoint 节点坐标
      * @return {Vec2}
-     * @example
-     * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
+     * @example var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
     GetPointToNodeAR (node, worldPoint) {
         return node.convertToNodeSpaceAR(worldPoint)
@@ -828,4 +832,4 @@ var Tools = {
     }
 }
 
-window['Tools'] = Tools
+window['Tools'] = module.exports = Tools
